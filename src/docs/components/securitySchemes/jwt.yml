@@ -1,0 +1,5 @@
+JWTToken:
+  description: 'JWT токен для авторизации. Формат: JWT {token}'
+  type: apiKey
+  name: Authorization
+  in: header

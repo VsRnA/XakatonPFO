@@ -1,0 +1,26 @@
+Pagination:
+  type: object
+  properties:
+    total:
+      type: integer
+      example: 50
+      description: Общее количество элементов
+    page:
+      type: integer
+      example: 1
+      description: Текущая страница
+    limit:
+      type: integer
+      example: 10
+      description: Количество элементов на странице
+    totalPages:
+      type: integer
+      example: 5
+      description: Общее количество страниц
+
+SuccessMessage:
+  type: object
+  properties:
+    message:
+      type: string
+      example: "Операция выполнена успешно"

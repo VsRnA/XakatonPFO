@@ -1,0 +1,42 @@
+User:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 1
+    email:
+      type: string
+      format: email
+      example: "user@example.com"
+    firstName:
+      type: string
+      example: "Иван"
+    lastName:
+      type: string
+      example: "Иванов"
+    middleName:
+      type: string
+      example: "Иванович"
+      nullable: true
+    roles:
+      type: array
+      items:
+        $ref: './role.yml#/RoleShort'
+    createdAt:
+      type: string
+      format: date-time
+      example: "2025-10-21T12:00:00.000Z"
+    updatedAt:
+      type: string
+      format: date-time
+      example: "2025-10-21T12:00:00.000Z"
+
+AuthResponse:
+  type: object
+  properties:
+    user:
+      $ref: '#/User'
+    token:
+      type: string
+      description: JWT токен для аутентификации
+      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTYzNzUwMDAwMCwiZXhwIjoxNjM3NTg2NDAwfQ.abc123"

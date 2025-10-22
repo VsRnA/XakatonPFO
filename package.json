@@ -1,0 +1,60 @@
+{
+  "name": "xakatonpfo",
+  "version": "0.0.1",
+  "description": "Xakaton core",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development nodemon --trace-warnings"
+  },
+  "license": "ISC",
+  "author": "Roman Vasenin",
+  "devDependencies": {
+    "eslint": "8.20.0",
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-import-resolver-alias": "1.1.2",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-jsdoc": "46.5.1",
+    "nodemon": "2.0.16"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.913.0",
+    "@aws-sdk/s3-request-presigner": "^3.913.0",
+    "bcrypt": "5.1.1",
+    "body-parser": "1.15.2",
+    "cookie-parser": "1.4.3",
+    "cors": "2.8.1",
+    "cron": "^1.5.0",
+    "dayjs": "1.11.7",
+    "dotenv": "^4.0.0",
+    "express": "4.14.0",
+    "express-validation": "1.0.1",
+    "form-data": "^4.0.0",
+    "joi": "^9.2.0",
+    "json-schema-ref-parser": "^9.0.9",
+    "jsonwebtoken": "^7.4.3",
+    "multer": "^2.0.2",
+    "mysql2": "3.9.2",
+    "openapi-request-coercer": "^12.0.0",
+    "openapi-request-validator": "^12.0.0",
+    "passport": "^0.4.0",
+    "passport-jwt": "^3.0.1",
+    "sequelize": "6.19.0",
+    "sequelize-cli": "6.6.2"
+  },
+  "imports": {
+    "#services/*": "./src/services/*",
+    "#infrastructure/*": "./src/infrastructure/*",
+    "#db": "./src/infrastructure/sequelize.js",
+    "#common/*": "./src/common/*",
+    "#lib/*": "./src/lib/*",
+    "#controllers/*": "./src/controllers/*",
+    "#repos": "./src/repositories/index.js",
+    "#repositories/*": "./src/repositories/*",
+    "#models": "./src/models/index.js",
+    "#routes": "./src/routes/index.js",
+    "#errors": "./src/errors/index.js",
+    "#config/*:": "./config/*"
+  }
+}

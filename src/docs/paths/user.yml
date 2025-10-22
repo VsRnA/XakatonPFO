@@ -1,0 +1,84 @@
+updateUserRoles:
+  put:
+    summary: Изменение ролей пользователя
+    description: Обновляет роли указанного пользователя (только для администраторов)
+    tags:
+      - Users
+    security:
+      - JWTToken: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID пользователя
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - roleIds
+            properties:
+              roleIds:
+                type: array
+                description: Массив ID ролей для назначения пользователю
+                items:
+                  type: integer
+                example: [1, 2]
+                minItems: 1
+    responses:
+      200:
+        description: Роли пользователя успешно обновлены
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                email:
+                  type: string
+                  example: "user@example.com"
+                firstName:
+                  type: string
+                  example: "Иван"
+                lastName:
+                  type: string
+                  example: "Иванов"
+                middleName:
+                  type: string
+                  example: "Иванович"
+                  nullable: true
+                roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: "Администратор"
+                      keyWord:
+                        type: string
+                        example: "admin"
+                updatedAt:
+                  type: string
+                  format: date-time
+                  example: "2025-10-22T12:00:00.000Z"
+      400:
+        $ref: '../components/responses/errors.yml#/BadRequest'
+      401:
+        $ref: '../components/responses/errors.yml#/Unauthorized'
+      403:
+        $ref: '../components/responses/errors.yml#/Forbidden'
+      404:
+        $ref: '../components/responses/errors.yml#/NotFound'
+      500:
+        $ref: '../components/responses/errors.yml#/InternalError'

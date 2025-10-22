@@ -1,0 +1,187 @@
+v1.createRole:
+  summary: Создание новой роли
+  description: Создает новую роль в системе
+  tags:
+    - Roles
+  security:
+    - JWTToken: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - name
+            - keyWord
+          properties:
+            name:
+              type: string
+              description: Название роли
+              example: "Модератор"
+              minLength: 1
+              maxLength: 100
+            keyWord:
+              type: string
+              description: Уникальный ключ роли для программного использования
+              example: "moderator"
+              pattern: '^[a-z_]+$'
+              minLength: 1
+              maxLength: 50
+            description:
+              type: string
+              description: Описание роли
+              example: "Модератор контента"
+              maxLength: 500
+  responses:
+    201:
+      description: Роль успешно создана
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/role.yml#/Role'
+    400:
+      $ref: '../components/responses/errors.yml#/BadRequest'
+    401:
+      $ref: '../components/responses/errors.yml#/Unauthorized'
+    409:
+      $ref: '../components/responses/errors.yml#/Conflict'
+    500:
+      $ref: '../components/responses/errors.yml#/InternalError'
+
+v1.listRoles:
+  summary: Список всех ролей
+  description: Возвращает список всех ролей в системе с поддержкой пагинации
+  tags:
+    - Roles
+  security:
+    - JWTToken: []
+  parameters:
+    - $ref: '../components/parameters/common.yml#/PageQuery'
+    - $ref: '../components/parameters/common.yml#/LimitQuery'
+    - name: search
+      in: query
+      required: false
+      description: Поиск по названию или ключевому слову роли
+      schema:
+        type: string
+        example: "admin"
+  responses:
+    200:
+      description: Список ролей успешно получен
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../components/schemas/role.yml#/Role'
+              pagination:
+                $ref: '../components/schemas/common.yml#/Pagination'
+    401:
+      $ref: '../components/responses/errors.yml#/Unauthorized'
+    500:
+      $ref: '../components/responses/errors.yml#/InternalError'
+
+v1.getRole:
+  summary: Получение роли по ID
+  description: Возвращает информацию о конкретной роли
+  tags:
+    - Roles
+  security:
+    - JWTToken: []
+  parameters:
+    - $ref: '../components/parameters/common.yml#/RoleId'
+  responses:
+    200:
+      description: Роль успешно получена
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/role.yml#/Role'
+    401:
+      $ref: '../components/responses/errors.yml#/Unauthorized'
+    404:
+      $ref: '../components/responses/errors.yml#/NotFound'
+    500:
+      $ref: '../components/responses/errors.yml#/InternalError'
+
+v1.updateRole:
+  summary: Изменение роли
+  description: Обновляет информацию о существующей роли
+  tags:
+    - Roles
+  security:
+    - JWTToken: []
+  parameters:
+    - $ref: '../components/parameters/common.yml#/RoleId'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Название роли
+              example: "Супер Модератор"
+              minLength: 1
+              maxLength: 100
+            keyWord:
+              type: string
+              description: Уникальный ключ роли
+              example: "super_moderator"
+              pattern: '^[a-z_]+$'
+              minLength: 1
+              maxLength: 50
+            description:
+              type: string
+              description: Описание роли
+              example: "Модератор с расширенными правами"
+              maxLength: 500
+  responses:
+    200:
+      description: Роль успешно обновлена
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/role.yml#/Role'
+    400:
+      $ref: '../components/responses/errors.yml#/BadRequest'
+    401:
+      $ref: '../components/responses/errors.yml#/Unauthorized'
+    404:
+      $ref: '../components/responses/errors.yml#/NotFound'
+    409:
+      $ref: '../components/responses/errors.yml#/Conflict'
+    500:
+      $ref: '../components/responses/errors.yml#/InternalError'
+
+v1.deleteRole:
+  summary: Удаление роли
+  description: Удаляет роль из системы
+  tags:
+    - Roles
+  security:
+    - JWTToken: []
+  parameters:
+    - $ref: '../components/parameters/common.yml#/RoleId'
+  responses:
+    200:
+      description: Роль успешно удалена
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/common.yml#/SuccessMessage'
+    401:
+      $ref: '../components/responses/errors.yml#/Unauthorized'
+    403:
+      $ref: '../components/responses/errors.yml#/Forbidden'
+    404:
+      $ref: '../components/responses/errors.yml#/NotFound'
+    409:
+      $ref: '../components/responses/errors.yml#/Conflict'
+    500:
+      $ref: '../components/responses/errors.yml#/InternalError'

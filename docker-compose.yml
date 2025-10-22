@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  mysql: 
+    image: mysql:8.0
+    container_name: xakaMysql
+    environment:
+      MYSQL_ROOT_PASSWORD: passw0rd
+      MYSQL_DATABASE: xakaDB
+      MYSQL_USER: xakaUser
+      MYSQL_PASSWORD: passw0rd
+      TZ: Europe/Moscow
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - my_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xakaCore
+    ports:
+      - "${HTTP_PORT:-3001}:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules 
+    depends_on:
+      - mysql
+    networks:
+      - my_network
+
+  openapi-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.openapi
+    container_name: myProjectOpenapiBuilder
+    volumes:
+      - openapi_static:/openapi
+
+  rapidoc:
+    image: nginx:alpine
+    container_name: myProjectRapidoc
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - openapi_static:/usr/share/nginx/html
+    depends_on:
+      - openapi-builder
+    networks:
+      - my_network
+    
+volumes:
+  db_data:
+    name: mysql_data
+  openapi_static:
+
+networks:
+  my_network:
+    driver: bridge

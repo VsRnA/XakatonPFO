@@ -1,0 +1,47 @@
+openapi: 3.0.4
+info:
+  title: XakatonPFO
+  description: XakatonPFO OpenAPI specification
+  version: 0.1.5
+servers:
+  - url: http://localhost:3001/
+    description: Local test server
+
+security:
+  - JWTToken: []
+
+components:
+  securitySchemes:
+    JWTToken:
+      $ref: './components/securitySchemes/jwt.yml#/JWTToken'
+
+
+paths:
+  # Аутетификация
+  /api/auth/v1/registration:
+    $ref: './paths/auth.yml#/v1.registration'
+  /api/auth/v1/login:
+    $ref: './paths/auth.yml#/v1.login'
+  
+  # Роли
+  /api/role/v1:
+    post:
+      $ref: './paths/role.yml#/v1.createRole'
+  /api/role/v1/list:
+    get:
+      $ref: './paths/role.yml#/v1.listRoles'
+  /api/role/v1/{id}:
+    get:
+      $ref: './paths/role.yml#/v1.getRole'
+    put:
+      $ref: './paths/role.yml#/v1.updateRole'
+    delete:
+      $ref: './paths/role.yml#/v1.deleteRole'
+
+  # Файлы
+  /api/files/v1/uploadImage:
+    $ref: './paths/file.yml#/uploadImage'
+
+  # Пользователь
+  /api/users/v1/{id}/roles:
+    $ref: './paths/user.yml#/updateUserRoles'

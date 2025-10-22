@@ -1,0 +1,101 @@
+BadRequest:
+  description: Неверные входные данные
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+                example: "ERR_VALIDATION"
+              message:
+                type: string
+                example: "Ошибка валидации данных"
+
+Unauthorized:
+  description: Требуется авторизация
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+                example: "ERR_UNAUTHORIZED"
+              message:
+                type: string
+                example: "Требуется авторизация"
+
+Forbidden:
+  description: Доступ запрещен
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+                example: "ERR_FORBIDDEN"
+              message:
+                type: string
+                example: "Недостаточно прав для выполнения операции"
+
+NotFound:
+  description: Ресурс не найден
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+                example: "ERR_NOT_FOUND"
+              message:
+                type: string
+                example: "Ресурс не найден"
+
+Conflict:
+  description: Конфликт данных
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+                example: "ERR_CONFLICT"
+              message:
+                type: string
+                example: "Конфликт данных"
+
+InternalError:
+  description: Внутренняя ошибка сервера
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+                example: "ERR_INTERNAL"
+              message:
+                type: string
+                example: "Внутренняя ошибка сервера"

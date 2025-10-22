@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "#services/*": ["./src/services/*"],
+      "#infrastructure/*": ["./src/infrastructure/*"],
+      "#db": ["./src/infrastructure/sequelize.js"],
+      "#common/*": ["./src/common/*"],
+      "#config/*": ["./config/*"],
+      "#lib/*": ["./src/lib/*"],
+      "#controllers/*": ["./src/controllers/*"],
+      "#repos": ["./src/repositories/index.js"],
+      "#repositories/*": ["./src/repositories/*"],
+      "#models": ["./src/models/index.js"],
+      "#routes": ["./src/routes/index.js"],
+      "#errors": ["./src/errors/index.js"]
+    }
+  }
+}
