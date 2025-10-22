@@ -6,6 +6,8 @@ info:
 servers:
   - url: http://localhost:3001/
     description: Local test server
+  - url: http://91.186.196.211:3001/
+    description: test server
 
 security:
   - JWTToken: []
