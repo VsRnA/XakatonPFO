@@ -9,7 +9,7 @@ export default [
     path: '/role/v1',
     verb: 'post',
     handler: cCreateRole,
-    authedOnly: true,
+    authedOnly: false,
   },
   {
     path: '/role/v1/list',
