@@ -13,17 +13,13 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    attachmentKey: {
+      type: DataTypes.STRING,
+      allowNull: true,     
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
-    },
-    amount: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-    },
-    places: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
     },
     startAt: {
       type: DataTypes.DATE,
@@ -51,12 +47,6 @@ export default (sequelize, DataTypes) => {
     models.lottery.hasMany(models.userLotteryAssigned, {
       foreignKey: 'lotteryId',
       as: 'assignedUsers',
-    });
-
-    models.lottery.hasMany(models.entropyAttachment, {
-      foreignKey: 'entropy',
-      sourceKey: 'id',
-      as: 'entropyAttachments',
     });
 
     models.lottery.belongsTo(models.user, {

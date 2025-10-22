@@ -2,7 +2,6 @@ import { rRole } from '#repos';
 import { ValidationError } from '#errors';
 
 export default async (request) => {
-  console.log(request);
   const page = parseInt(request.query.page) || 1;
   const limit = parseInt(request.query.limit) || 10;
   const search = request.query.search || '';

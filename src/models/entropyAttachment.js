@@ -8,8 +8,8 @@ export default (sequelize, DataTypes) => {
         key: 'entropy',
       },
     },
-    attachmentGuid: {
-      type: DataTypes.UUID,
+    attachmentKey: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
   }, {

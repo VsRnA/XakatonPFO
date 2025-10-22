@@ -33,9 +33,9 @@ export async function uploadFile(file, folder = 'uploads') {
 }
 
 export async function deleteFile(key) {
-  return await s3Storage.delete(key);
+  return await storage.delete(key);
 }
 
 export async function getFileUrl(key, expiresIn = 3600) {
-  return await s3Storage.getSignedDownloadUrl(key, expiresIn);
+  return await storage.getSignedDownloadUrl(key, expiresIn);
 }

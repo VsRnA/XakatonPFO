@@ -30,6 +30,13 @@ export async function loadOpenapiRoutes(schemaFile) {
 }
 
 export function validateRequest(request, openapiRoute) {
+  const contentType = request.headers?.['content-type'] || '';
+  
+  // Костыль поправить, если будет время
+  if (contentType.includes('multipart/form-data')) {
+    return request;
+  }
+
   const httpRequest = {
     headers: request.headers || {
       'content-type': 'application/json',

@@ -71,7 +71,7 @@ function getExpressController(route, openapiRoute) {
       query: req.query,
       headers: req.headers,
       context: {
-        user: req.user || req.context?.user || null, 
+        user: req.user, 
       },
     };
 
@@ -85,7 +85,7 @@ function getExpressController(route, openapiRoute) {
       };
 
       request.context = {
-        ...request.payload,
+        ...request.context,
         file: req.file
       };
     }
