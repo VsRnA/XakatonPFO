@@ -84,7 +84,7 @@ function getExpressController(route, openapiRoute) {
         buffer: req.file.buffer,
       };
 
-      request.payload = {
+      request.context = {
         ...request.payload,
         file: req.file
       };

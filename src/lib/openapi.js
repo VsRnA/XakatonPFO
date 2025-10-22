@@ -42,7 +42,7 @@ export function validateRequest(request, openapiRoute) {
   if (openapiRoute.typeCast) openapiRoute.typeCast.coerce(httpRequest);
 
   const validationProblems = openapiRoute.validator.validateRequest(httpRequest);
-  
+
   if (validationProblems) {
     throw new Error('Request validation fails')
   }

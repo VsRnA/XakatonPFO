@@ -7,16 +7,14 @@ uploadImage:
     security:
       - JWTToken: []
     requestBody:
-      required: true
       content:
         multipart/form-data:
           schema:
             type: object
-            required:
-              - file
             properties:
               file:
-                type: object
+                type: string
+                format: binary
     responses:
       200:
         description: Файл успешно загружен
