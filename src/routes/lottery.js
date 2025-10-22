@@ -1,4 +1,6 @@
 import cCreateLottery from '#controllers/lottery/create.js';
+import cGetLottery from '#controllers/lottery/get.js';
+import cListLotteries from '#controllers/lottery/list.js';
 import cGetLotteryImage from '#controllers/lottery/getLotteryImage.js';
 
 export default [
@@ -10,9 +12,21 @@ export default [
     upload: true,
   },
   {
+    path: '/lottery/v1',
+    verb: 'get',
+    handler: cListLotteries,
+    authedOnly: true,
+  },
+  {
+    path: '/lottery/v1/:id',
+    verb: 'get',
+    handler: cGetLottery,
+    authedOnly: true,
+  },
+  {
     path: '/lottery/v1/:id/image',
     verb: 'get',
     handler: cGetLotteryImage,
-    authedOnly: true, 
+    authedOnly: true,
   },
 ];

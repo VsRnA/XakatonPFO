@@ -2,6 +2,7 @@ import { ForbiddenError } from '#errors';
 import { rLottery } from '#repos';
 import { deleteFile, uploadFile } from '#services/fileUpload.js';
 import { executeInTransaction } from '#db';
+import crypto from 'crypto';
 
 export default async (request) => {
   const { user } = request.context;
@@ -30,7 +31,8 @@ export default async (request) => {
   };
 
   let uploadedFile = null;
-
+  const seed = crypto.randomUUID()
+  const seedHash = crypto.createHash('sha256').update(seed).digest('hex');
   try {
     return await executeInTransaction(async (transaction) => {
       const options = { transaction }
@@ -47,6 +49,8 @@ export default async (request) => {
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
         status: 'draft',
         amount: parseInt(amount),
+        seed,
+        seedHash,
       }, options);
 
       const createdLottery = await rLottery.findById(lottery.id, options);
@@ -55,7 +59,7 @@ export default async (request) => {
         id: createdLottery.id,
         name: createdLottery.name,
         description: createdLottery.description,
-        attachmentGuid: createdLottery.attachmentGuid,
+        attachmentKey: createdLottery.attachmentKey,
         startAt: createdLottery.startAt,
         endAt: createdLottery.endAt,
         organizator: {
@@ -66,6 +70,7 @@ export default async (request) => {
         },
         metadata: createdLottery.metadata,
         status: createdLottery.status,
+        seedHash: seedHash,
         createdAt: createdLottery.createdAt,
         amount: createdLottery.amount,
       };

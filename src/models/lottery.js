@@ -41,6 +41,14 @@ export default (sequelize, DataTypes) => {
     amount: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    seed: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    seedHash: {
+      type: DataTypes.STRING,
+      allowNull: false,
     }
   }, {
     timestamps: true,
