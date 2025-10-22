@@ -21,7 +21,7 @@ async function initDb () {
     db[model.name] = model
   })
 
-  await sequelize.sync({ alter: true }); 
+  // await sequelize.sync({ alter: true }); 
   
   return db;
 }
