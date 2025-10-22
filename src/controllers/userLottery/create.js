@@ -1,13 +1,13 @@
 import { NotFoundError, ForbiddenError, ConflictError } from '#errors';
 import { rLottery, rUserLotteryAssigned, rEntropyAttachment } from '#repos';
 import { uploadFile, deleteFile } from '#services/fileUpload.js';
-import { generateEntropy } from '#services/entropyServices.js';
+import { generateEntropy} from '#services/entropyServices.js';
 import { executeInTransaction } from '#db';
 
 export default async (request) => {
   const { user } = request.context;
   const file = request.file;
-  const { lotteryId, barrelHash } = request.payload;
+  const { lotteryId, barrelsNumber } = request.payload;
 
 
   let uploadedFile = null;
@@ -52,10 +52,9 @@ export default async (request) => {
       const entropy = generateEntropy(
         user.id,
         parseInt(lotteryId),
-        barrelHash,
+        JSON.parse(barrelsNumber),
         file.buffer
       );
-
 
       const assignment = await rUserLotteryAssigned.create({
         userId: user.id,
@@ -64,7 +63,7 @@ export default async (request) => {
         status: 'inProgress',
         placement: null,
         metadata: {
-          barrelHash,
+          barrelsNumber, 
           registeredAt: new Date().toISOString(),
         },
       }, options);

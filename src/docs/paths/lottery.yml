@@ -282,7 +282,7 @@ v1.registerInLottery:
           required:
             - file
             - lotteryId
-            - barrelHash
+            - barrelsNumber
           properties:
             file:
               type: string
@@ -292,11 +292,10 @@ v1.registerInLottery:
               type: integer
               description: ID лотереи
               example: 1
-            barrelHash:
+            barrelsNumber:
               type: string
-              description: SHA-256 хеш выбранных бочек
-              example: "5d41402abc4b2a76b9719d911017c592ae1f8c7a1bcd1e3b0e8f7d6a9c5b4a3e"
-              pattern: '^[a-f0-9]{64}$'
+              description: JSON-массив выбранных номеров бочек
+              example: "[1,15,23,42,67,89]"
   responses:
     201:
       description: Пользователь успешно зарегистрирован в лотерее

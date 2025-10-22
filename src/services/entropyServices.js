@@ -3,19 +3,16 @@ import crypto from 'crypto';
 /**
  * Генерация энтропии на основе различных данных
  */
-export function generateEntropy(userId, lotteryId, barrelHash, fileBuffer, timestamp = Date.now()) {
+export function generateEntropy(userId, lotteryId, barrelsNumber, fileBuffer, timestamp = Date.now()) {
   // Хешируем содержимое файла
   const fileHash = crypto.createHash('sha256').update(Buffer.from(fileBuffer)).digest('hex');
   
+  console.log(barrelsNumber);
+  // Сортируем и stringify массив номеров бочек для консистентности
+  const barrelsString = JSON.stringify(barrelsNumber.sort((a, b) => a - b));
+  console.log(barrelsString);
   // Комбинируем с остальными данными
-  const data = `${userId}-${lotteryId}-${barrelHash}-${fileHash}-${timestamp}`;
+  const data = `${userId}-${lotteryId}-${barrelsString}-${fileHash}-${timestamp}`;
   
   return crypto.createHash('sha256').update(data).digest('hex');
-}
-/**
- * Валидация хеша бочек
- */
-export function validateBarrelHash(barrelHash) {
-  const hashPattern = /^[a-f0-9]{64}$/i;
-  return hashPattern.test(barrelHash);
 }
