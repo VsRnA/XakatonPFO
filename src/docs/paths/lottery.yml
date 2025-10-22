@@ -475,6 +475,148 @@ v1.calculateLotteryWinners:
     500:
       $ref: '../components/responses/errors.yml#/InternalError'
 
+v1.getUserLotteryResults:
+  summary: Получение результатов лотереи для пользователя
+  description: Возвращает результаты участия пользователя в лотерее после подведения итогов
+  tags:
+    - Lottery
+  security:
+    - JWTToken: []
+  parameters:
+    - in: path
+      name: lotteryId
+      required: true
+      schema:
+        type: integer
+      description: ID лотереи
+      example: 1
+  responses:
+    200:
+      description: Результаты успешно получены
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              lottery:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: "Новогодний розыгрыш 2025"
+                  status:
+                    type: string
+                    example: "Calculated"
+                  startAt:
+                    type: string
+                    format: date-time
+                  endAt:
+                    type: string
+                    format: date-time
+                  totalParticipants:
+                    type: integer
+                    example: 150
+                  winnersCount:
+                    type: integer
+                    example: 3
+                  calculatedAt:
+                    type: string
+                    format: date-time
+              userResult:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                    example: 42
+                  status:
+                    type: string
+                    enum: [won, lost]
+                    example: "won"
+                  placement:
+                    type: integer
+                    nullable: true
+                    example: 1
+                  matchCount:
+                    type: integer
+                    example: 5
+                  percentile:
+                    type: integer
+                    description: "Процент участников, которых обошел пользователь"
+                    example: 98
+                  isWinner:
+                    type: boolean
+                    example: true
+              barrels:
+                type: object
+                properties:
+                  player:
+                    type: array
+                    items:
+                      type: integer
+                    example: [5, 12, 23, 45, 67, 88]
+                  winning:
+                    type: array
+                    items:
+                      type: integer
+                    example: [5, 12, 23, 45, 67, 89]
+                  matched:
+                    type: array
+                    items:
+                      type: integer
+                    example: [5, 12, 23, 45, 67]
+              verification:
+                type: object
+                description: "Данные для верификации честности розыгрыша"
+                properties:
+                  entropy:
+                    type: string
+                    example: "user_entropy_hash..."
+                  secretSeed:
+                    type: string
+                    example: "secret123..."
+                  drandRandomness:
+                    type: string
+                    example: "8d969eef..."
+                  finalSeed:
+                    type: string
+                    example: "a1b2c3d4..."
+                  seedHash:
+                    type: string
+                    example: "hash_of_secret..."
+              leaderboard:
+                type: array
+                description: "Топ-10 участников"
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: integer
+                      example: 42
+                    placement:
+                      type: integer
+                      example: 1
+                    matchCount:
+                      type: integer
+                      example: 5
+                    status:
+                      type: string
+                      enum: [won, lost]
+                      example: "won"
+                    isCurrentUser:
+                      type: boolean
+                      example: true
+    401:
+      $ref: '../components/responses/errors.yml#/Unauthorized'
+    403:
+      $ref: '../components/responses/errors.yml#/Forbidden'
+    404:
+      $ref: '../components/responses/errors.yml#/NotFound'
+    500:
+      $ref: '../components/responses/errors.yml#/InternalError'
+
 components:
   schemas:
     LotteryWithImage:

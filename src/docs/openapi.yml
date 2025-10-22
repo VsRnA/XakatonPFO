@@ -66,3 +66,6 @@ paths:
   /api/lottery/v1/calculateLotteryWinners:
     post:
       $ref: './paths/lottery.yml#/v1.calculateLotteryWinners'
+  /api/lottery/v1/{lotteryId}/getUserLotteryResults:
+    get:
+      $ref: './paths/lottery.yml#/v1.getUserLotteryResults'

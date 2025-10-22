@@ -4,6 +4,7 @@ import cListLotteries from '#controllers/lottery/list.js';
 import cGetLotteryImage from '#controllers/lottery/getLotteryImage.js';
 import cRegisterInLottery from '#controllers/userLottery/create.js'
 import cCalculateWinners from '#controllers/userLottery/calculateWinners.js';
+import cGetLotteryResultForUser from '#controllers/userLottery/get.js';
 
 export default [
   {
@@ -43,5 +44,11 @@ export default [
     verb: 'post',
     handler: cCalculateWinners,
     authedOnly: true
+  },
+  {
+    path: '/lottery/v1/:lotteryId/getUserLotteryResults',
+    verb: 'get',
+    handler: cGetLotteryResultForUser,
+    authedOnly: true,
   },
 ];
