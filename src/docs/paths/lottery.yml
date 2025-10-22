@@ -357,6 +357,124 @@ v1.registerInLottery:
     500:
       $ref: '../components/responses/errors.yml#/InternalError'
 
+v1.calculateLotteryWinners:
+  summary: Подведение итогов лотереи
+  description: Вычисляет победителей на основе drand randomness
+  tags:
+    - Lottery
+  security:
+    - JWTToken: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - lotteryId
+            - drandRandomness
+          properties:
+            lotteryId:
+              type: integer
+              description: ID лотереи
+              example: 1
+            drandRandomness:
+              type: string
+              description: Случайное значение от drand
+              example: "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+              pattern: '^[a-f0-9]{64,}$'
+  responses:
+    200:
+      description: Победители успешно определены
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Победители успешно определены"
+              lottery:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: "Новогодний розыгрыш 2025"
+                  status:
+                    type: string
+                    example: "Calculated"
+              calculation:
+                type: object
+                properties:
+                  secretSeed:
+                    type: string
+                    example: "secret123..."
+                  drandRandomness:
+                    type: string
+                    example: "8d969eef..."
+                  finalSeed:
+                    type: string
+                    example: "a1b2c3d4..."
+                  winningBarrels:
+                    type: array
+                    items:
+                      type: integer
+                    example: [5, 12, 23, 45, 67, 89]
+                  totalParticipants:
+                    type: integer
+                    example: 150
+              winners:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: integer
+                      example: 42
+                    entropy:
+                      type: string
+                      example: "user_entropy_hash..."
+                    playerBarrels:
+                      type: array
+                      items:
+                        type: integer
+                      example: [5, 12, 23, 45, 67, 88]
+                    matchCount:
+                      type: integer
+                      example: 5
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    placement:
+                      type: integer
+                      nullable: true
+                      example: 1
+                    userId:
+                      type: integer
+                      example: 42
+                    matchCount:
+                      type: integer
+                      example: 5
+                    status:
+                      type: string
+                      enum: [won, lost]
+                      example: "won"
+    400:
+      $ref: '../components/responses/errors.yml#/BadRequest'
+    401:
+      $ref: '../components/responses/errors.yml#/Unauthorized'
+    403:
+      $ref: '../components/responses/errors.yml#/Forbidden'
+    404:
+      $ref: '../components/responses/errors.yml#/NotFound'
+    500:
+      $ref: '../components/responses/errors.yml#/InternalError'
+
 components:
   schemas:
     LotteryWithImage:

@@ -3,6 +3,7 @@ import cGetLottery from '#controllers/lottery/get.js';
 import cListLotteries from '#controllers/lottery/list.js';
 import cGetLotteryImage from '#controllers/lottery/getLotteryImage.js';
 import cRegisterInLottery from '#controllers/userLottery/create.js'
+import cCalculateWinners from '#controllers/userLottery/calculateWinners.js';
 
 export default [
   {
@@ -36,5 +37,11 @@ export default [
     handler: cRegisterInLottery,
     authedOnly: true,
     upload: true,
+  },
+  {
+    path: '/lottery/v1/calculateLotteryWinners',
+    verb: 'post',
+    handler: cCalculateWinners,
+    authedOnly: true
   },
 ];
