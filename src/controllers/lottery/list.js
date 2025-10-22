@@ -60,6 +60,7 @@ export default async (request) => {
         createdAt: lottery.createdAt,
         updatedAt: lottery.updatedAt,
         seedHash: lottery.seedHash,
+        drandRound: lottery.drandRound,
       };
     })
   );

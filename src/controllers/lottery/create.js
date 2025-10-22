@@ -2,7 +2,11 @@ import { ForbiddenError } from '#errors';
 import { rLottery } from '#repos';
 import { deleteFile, uploadFile } from '#services/fileUpload.js';
 import { executeInTransaction } from '#db';
-import crypto from 'crypto';
+import { 
+  generateLotterySeed, 
+  createSeedHash, 
+  calculateDrandRound 
+} from '#services/drandServices.js';
 
 export default async (request) => {
   const { user } = request.context;
@@ -21,7 +25,6 @@ export default async (request) => {
     throw new ForbiddenError('Только администраторы могут создавать лотереи');
   }
 
-
   const start = new Date(startAt);
   const end = new Date(endAt);
 
@@ -30,12 +33,18 @@ export default async (request) => {
     barrelLimit: parseInt(barrelLimit),
   };
 
+  // Генерируем seed и его hash
+  const seed = generateLotterySeed();
+  const seedHash = createSeedHash(seed);
+
+  // Вычисляем drand раунд на основе времени окончания
+  const drandRound = calculateDrandRound(end);
+
   let uploadedFile = null;
-  const seed = crypto.randomUUID()
-  const seedHash = crypto.createHash('sha256').update(seed).digest('hex');
+
   try {
     return await executeInTransaction(async (transaction) => {
-      const options = { transaction }
+      const options = { transaction };
 
       uploadedFile = await uploadFile(file, 'lotteries');
 
@@ -50,7 +59,8 @@ export default async (request) => {
         status: 'draft',
         amount: parseInt(amount),
         seed,
-        seedHash,
+        seedHash, 
+        drandRound, 
       }, options);
 
       const createdLottery = await rLottery.findById(lottery.id, options);
@@ -70,7 +80,8 @@ export default async (request) => {
         },
         metadata: createdLottery.metadata,
         status: createdLottery.status,
-        seedHash: seedHash,
+        seedHash: createdLottery.seedHash,
+        drandRound: createdLottery.drandRound,
         createdAt: createdLottery.createdAt,
         amount: createdLottery.amount,
       };

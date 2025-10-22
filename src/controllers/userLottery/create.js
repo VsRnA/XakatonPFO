@@ -47,15 +47,15 @@ export default async (request) => {
         throw new ConflictError('Вы уже зарегистрированы в этой лотерее');
       }
 
-      // Загружаем файл в S3
       uploadedFile = await uploadFile(file, `lottery-${lotteryId}/user-${user.id}`);
 
       const entropy = generateEntropy(
         user.id,
         parseInt(lotteryId),
         barrelHash,
-        uploadedFile.key
+        file.buffer
       );
+
 
       const assignment = await rUserLotteryAssigned.create({
         userId: user.id,
@@ -69,7 +69,6 @@ export default async (request) => {
         },
       }, options);
 
-      // Создаем запись о вложении
       await rEntropyAttachment.create({
         entropy,
         attachmentKey: uploadedFile.key,

@@ -108,12 +108,18 @@ v1.createLottery:
                 type: string
                 enum: [draft, inProgress, finished]
                 example: "draft"
+              seedHash:
+                type: string
+                description: SHA-256 хеш от seed для проверки честности
+                example: "a3f5e8c2d1b4567890abcdef1234567890abcdef1234567890abcdef12345678"
+              drandRound:
+                type: integer
+                description: Номер раунда drand для получения случайного числа
+                example: 12345678
               createdAt:
                 type: string
                 format: date-time
                 example: "2025-10-22T12:00:00.000Z"
-              seedHash:
-                type: string
     400:
       $ref: '../components/responses/errors.yml#/BadRequest'
     401:
@@ -422,6 +428,14 @@ components:
           type: string
           enum: [draft, inProgress, finished]
           example: "draft"
+        seedHash:
+          type: string
+          description: SHA-256 хеш от seed для проверки честности розыгрыша
+          example: "a3f5e8c2d1b4567890abcdef1234567890abcdef1234567890abcdef12345678"
+        drandRound:
+          type: integer
+          description: Номер раунда drand для получения случайного числа. Используйте API https://api.drand.sh/{chainHash}/public/{round}
+          example: 12345678
         createdAt:
           type: string
           format: date-time
@@ -430,5 +444,3 @@ components:
           type: string
           format: date-time
           example: "2025-10-22T12:00:00.000Z"
-        seedHash:
-          type: string

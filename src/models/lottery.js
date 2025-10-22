@@ -49,7 +49,12 @@ export default (sequelize, DataTypes) => {
     seedHash: {
       type: DataTypes.STRING,
       allowNull: false,
-    }
+    },
+    drandRound: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      comment: 'Номер раунда drand для получения случайного числа',
+    },
   }, {
     timestamps: true,
     tableName: 'lottery',
