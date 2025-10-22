@@ -30,7 +30,7 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM('draft', 'inProgress', 'finished'),
+      type: DataTypes.ENUM('draft', 'inProgress', 'finished', 'Calculated'),
       allowNull: false,
       defaultValue: 'draft',
     },
