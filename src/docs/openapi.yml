@@ -69,3 +69,7 @@ paths:
   /api/lottery/v1/{lotteryId}/getUserLotteryResults:
     get:
       $ref: './paths/lottery.yml#/v1.getUserLotteryResults'
+
+  # Описание
+  /api/story/v1/algorithm:
+    $ref: './paths/story.yml#/v1.getLotteryAlgorithm'

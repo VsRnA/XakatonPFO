@@ -1,0 +1,128 @@
+v1.getLotteryAlgorithm:
+  get:
+    summary: Получение описания алгоритма честной лотереи
+    description: Возвращает полное техническое описание алгоритма провably fair лотереи с разбивкой по этапам, включая действия на бэкенде и фронтенде для каждого этапа
+    tags:
+      - Story
+    responses:
+      200:
+        description: Описание алгоритма успешно получено
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                algorithm_name:
+                  type: string
+                  example: "Доказуемо честная лотерея с тройной энтропией (Сервер + Игроки + Drand)"
+                  description: Полное название алгоритма
+                algorithm_type:
+                  type: string
+                  example: "Схема commitment-reveal с внешним маяком случайности"
+                  description: Тип алгоритма согласно криптографической классификации
+                version:
+                  type: string
+                  example: "1.0"
+                  description: Версия алгоритма
+                stages:
+                  type: array
+                  description: Список этапов работы алгоритма
+                  items:
+                    type: object
+                    properties:
+                      stage:
+                        type: integer
+                        example: 1
+                        description: Номер этапа
+                      name:
+                        type: string
+                        example: "Создание лотереи"
+                        description: Название этапа
+                      short_description:
+                        type: string
+                        example: "Сервер генерирует секретный seed и публикует его commitment"
+                        description: Краткое описание этапа
+                      detailed_description:
+                        type: string
+                        example: "Сервер создаёт криптографически стойкий secret_seed, вычисляет его SHA-256 хеш (server_commitment) и публикует commitment вместе с параметрами лотереи"
+                        description: Подробное описание этапа
+                      steps:
+                        type: object
+                        description: Действия на бэкенде и фронтенде
+                        properties:
+                          backend:
+                            type: array
+                            description: Список действий выполняемых на сервере
+                            items:
+                              type: string
+                              example: "Генерация secret_seed (32 байта, криптографически стойкий CSPRNG)"
+                          frontend:
+                            type: array
+                            description: Список действий выполняемых на клиенте
+                            items:
+                              type: string
+                              example: "Отображение опубликованного server_commitment"
+                security_guarantees:
+                  type: object
+                  description: Гарантии безопасности алгоритма
+                  properties:
+                    unpredictability:
+                      type: string
+                      example: "Результат невозможно предсказать до получения drand_randomness"
+                      description: Защита от предсказания результата
+                    non_manipulation_server:
+                      type: string
+                      example: "Сервер не может изменить secret_seed (commitment опубликован)"
+                      description: Защита от манипуляций со стороны сервера
+                    non_manipulation_players:
+                      type: string
+                      example: "Игроки не могут изменить свои данные после регистрации"
+                      description: Защита от манипуляций со стороны игроков
+                    public_verifiability:
+                      type: string
+                      example: "Любой человек может независимо пересчитать весь процесс"
+                      description: Возможность публичной проверки честности
+                entropy_sources:
+                  type: array
+                  description: Источники энтропии (случайности) в алгоритме
+                  items:
+                    type: object
+                    properties:
+                      source:
+                        type: string
+                        example: "Секретный seed сервера"
+                        description: Название источника энтропии
+                      type:
+                        type: string
+                        example: "Контролируется сервером"
+                        description: Тип источника и кто его контролирует
+                      protection:
+                        type: string
+                        example: "Commitment опубликован до регистрации"
+                        description: Механизм защиты от манипуляций
+                      contribution:
+                        type: string
+                        example: "Базовая случайность"
+                        description: Вклад в общую энтропию
+                cryptographic_primitives:
+                  type: object
+                  description: Используемые криптографические примитивы
+                  properties:
+                    hash_function:
+                      type: string
+                      example: "SHA-256"
+                      description: Хеш-функция
+                    rng_algorithm:
+                      type: string
+                      example: "Тасовка Фишера-Йетса с детерминированным seed"
+                      description: Алгоритм генерации случайных чисел
+                    commitment_scheme:
+                      type: string
+                      example: "Commitment на основе хеширования"
+                      description: Схема commitment для фиксации данных
+                    external_randomness:
+                      type: string
+                      example: "Drand пороговые BLS подписи"
+                      description: Источник внешней случайности
+      500:
+        $ref: '../components/responses/errors.yml#/InternalError'
