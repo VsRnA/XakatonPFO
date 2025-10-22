@@ -1,0 +1,8 @@
+RoleSearchQuery:
+  name: search
+  in: query
+  required: false
+  description: Поиск по названию или ключевому слову роли
+  schema:
+    type: string
+    example: "admin"

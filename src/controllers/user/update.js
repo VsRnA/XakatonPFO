@@ -1,50 +1,31 @@
-import { NotFoundError} from '#errors';
-import { rUser, rRole, rUserRoleAssigment } from '#repos';
+import { rUser, rUserRoleAssigment } from '#repos';
 import { executeInTransaction } from '#db';
+import { parseInteger } from '#helpers/validation.js';
+import { findUserOrFail, formatUserResponse } from '#helpers/user.js';
+import { validateRoleIds } from '#helpers/role.js';
 
 export default async (request) => {
-  const { id } = request.params;
+  const userId = parseInteger(request.params.id, 'id', { min: 1 });
   const { roleIds } = request.payload;
-  const currentUser = request.context.user;
 
   return await executeInTransaction(async (transaction) => {
-    const options = { transaction }
-    const user = await rUser.findById(parseInt(id), options);
-    if (!user) {
-      throw new NotFoundError('Пользователь с указанным ID не найден');
-    }
+    const options = { transaction };
 
-    const roles = await Promise.all(
-      roleIds.map(roleId => rRole.findById(roleId, options))
-    );
+    await findUserOrFail(userId, options);
 
-    if (roles.some(role => !role)) {
-      throw new NotFoundError('Одна или несколько указанных ролей не найдены');
-    }
+    await validateRoleIds(roleIds, options);
 
-    await rUserRoleAssigment.deleteByUserId(parseInt(id), options);
+    await rUserRoleAssigment.deleteByUserId(userId, options);
 
     const assignments = roleIds.map(roleId => ({
-      userId: parseInt(id),
-      roleId: roleId,
+      userId,
+      roleId,
     }));
 
     await rUserRoleAssigment.createBulk(assignments, options);
 
-    const updatedUser = await rUser.findByIdWithRoles(parseInt(id), options);
+    const updatedUser = await rUser.findByIdWithRoles(userId, options);
 
-    return {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      middleName: updatedUser.middleName,
-      roles: updatedUser.roles.map(role => ({
-        id: role.id,
-        name: role.name,
-        keyWord: role.keyWord,
-      })),
-      updatedAt: updatedUser.updatedAt,
-    };
+    return formatUserResponse(updatedUser);
   });
 };

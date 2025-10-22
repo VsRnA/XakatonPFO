@@ -1,12 +1,18 @@
 import { rLottery } from '#repos';
-import { getFileUrl } from '#services/fileUpload.js';
+import { formatLotteriesResponse } from '#helpers/lottery.js';
+import { parseInteger } from '#helpers/validation.js';
 
 export default async (request) => {
-  const { page = 1, limit = 10, search, status, organizatorId } = request.query;
+  const { 
+    page = 1, 
+    limit = 10, 
+    search, 
+    status, 
+    organizatorId 
+  } = request.query;
 
-  const parsedPage = parseInt(page);
-  const parsedLimit = parseInt(limit);
-
+  const parsedPage = parseInteger(page, 'page', { min: 1 });
+  const parsedLimit = parseInteger(limit, 'limit', { min: 1, max: 100 });
   const offset = (parsedPage - 1) * parsedLimit;
 
   const { lotteries, total } = await rLottery.list({
@@ -14,59 +20,13 @@ export default async (request) => {
     offset,
     search: search?.trim() || null,
     status: status || null,
-    organizatorId: parseInt(organizatorId),
+    organizatorId: organizatorId ? parseInteger(organizatorId, 'organizatorId', { min: 1 }) : null,
   });
 
   const totalPages = Math.ceil(total / parsedLimit);
 
-  const lotteriesWithImages = await Promise.all(
-    lotteries.map(async (lottery) => {
-      let imageData = null;
-      
-      if (lottery.attachmentKey) {
-        try {
-          const urlData = await getFileUrl(lottery.attachmentKey, 3600);
-          imageData = {
-            attachmentKey: lottery.attachmentKey,
-            url: urlData.url,
-            expiresIn: urlData.expiresIn,
-          };
-        } catch (error) {
-          console.error(`Ошибка получения URL для лотереи ${lottery.id}:`, error);
-          imageData = {
-            attachmentKey: lottery.attachmentKey,
-            url: null,
-            error: 'Не удалось получить URL изображения',
-          };
-        }
-      }
-
-      return {
-        id: lottery.id,
-        name: lottery.name,
-        description: lottery.description,
-        image: imageData,
-        amount: lottery.amount,
-        startAt: lottery.startAt,
-        endAt: lottery.endAt,
-        organizator: {
-          id: lottery.organizator.id,
-          email: lottery.organizator.email,
-          firstName: lottery.organizator.firstName,
-          lastName: lottery.organizator.lastName,
-        },
-        metadata: lottery.metadata,
-        status: lottery.status,
-        createdAt: lottery.createdAt,
-        updatedAt: lottery.updatedAt,
-        seedHash: lottery.seedHash,
-        drandRound: lottery.drandRound,
-      };
-    })
-  );
-
   return {
-    data: lotteriesWithImages,
+    data: await formatLotteriesResponse(lotteries),
     pagination: {
       total,
       page: parsedPage,

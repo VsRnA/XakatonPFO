@@ -1,0 +1,41 @@
+RoleCreated:
+  description: Роль успешно создана
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/role.yml#/Role'
+
+RolesList:
+  description: Список ролей успешно получен
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '../schemas/role.yml#/Role'
+          pagination:
+            $ref: '../schemas/common.yml#/Pagination'
+
+RoleSuccess:
+  description: Роль успешно получена
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/role.yml#/Role'
+
+RoleUpdated:
+  description: Роль успешно обновлена
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/role.yml#/Role'
+
+RoleDeleted:
+  description: Роль успешно удалена
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yml#/SuccessMessage'

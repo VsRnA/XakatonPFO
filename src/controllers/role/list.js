@@ -1,26 +1,29 @@
 import { rRole } from '#repos';
-import { ValidationError } from '#errors';
+import { formatRolesResponse } from '#helpers/role.js';
+import { parseInteger } from '#helpers/validation.js';
 
 export default async (request) => {
-  const page = parseInt(request.query.page) || 1;
-  const limit = parseInt(request.query.limit) || 10;
-  const search = request.query.search || '';
-
-  if (page < 1) {
-    throw new ValidationError('Параметр "page" должен быть положительным числом');
-  }
-
-  if (limit < 1 || limit > 100) {
-    throw new ValidationError('Параметр "limit" должен быть в диапазоне от 1 до 100');
-  }
+  const page = parseInteger(request.query.page || 1, 'page', { min: 1 });
+  const limit = parseInteger(request.query.limit || 10, 'limit', { min: 1, max: 100 });
+  const search = request.query.search?.trim() || '';
 
   const offset = (page - 1) * limit;
 
   const { roles, total } = await rRole.list({
     limit,
     offset,
-    search: search.trim(),
+    search,
   });
 
-  return roles
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data: formatRolesResponse(roles),
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages,
+    },
+  };
 };

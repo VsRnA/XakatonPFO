@@ -1,57 +1,74 @@
 import $RefParser from 'json-schema-ref-parser';
 import OpenApiRequest from 'openapi-request-validator';
 import OpenApiCoercer from 'openapi-request-coercer';
+import { ValidationError } from '#errors';
 
 const OpenAPIRequestValidator = OpenApiRequest.default;
 const OpenAPIRequestCoercer = OpenApiCoercer.default;
 
-const ajvOptions = {
+const AJV_OPTIONS = {
   discriminator: true,
 };
 
+const DEFAULT_HEADERS = {
+  'content-type': 'application/json',
+};
+
+
 export async function loadOpenapiRoutes(schemaFile) {
   const openapi = await $RefParser.dereference(schemaFile);
-  return Object
-    .entries(openapi?.paths || {})
-    .map(
-      ([path, methods]) => Object
-        .entries(methods)
-        .map(([verb, props]) => ({
-          path: path
-            .replace(/\{(.*?)\}/g, (_, paramName) => `:${paramName}`)
-            .replace(/^\/api|\/$/g, ''),
-            verb,
-          operationId: props.operationId,
-          validator: new OpenAPIRequestValidator({ ...props, ajvOptions }),
-          typeCast: props.parameters ? new OpenAPIRequestCoercer(props) : null,
-        })),
-    )
-    .flat(1);
+  
+  return Object.entries(openapi?.paths || {})
+    .flatMap(([path, methods]) => 
+      Object.entries(methods).map(([verb, props]) => ({
+        path: normalizePath(path),
+        verb,
+        operationId: props.operationId,
+        validator: new OpenAPIRequestValidator({ 
+          ...props, 
+          ajvOptions: AJV_OPTIONS 
+        }),
+        typeCast: props.parameters 
+          ? new OpenAPIRequestCoercer(props) 
+          : null,
+      }))
+    );
+}
+
+function normalizePath(path) {
+  return path
+    .replace(/\{([^}]+)\}/g, (_, paramName) => `:${paramName}`)
+    .replace(/^\/api|\/$/g, '');
 }
 
 export function validateRequest(request, openapiRoute) {
   const contentType = request.headers?.['content-type'] || '';
-  
-  // Костыль поправить, если будет время
+
   if (contentType.includes('multipart/form-data')) {
     return request;
   }
 
   const httpRequest = {
-    headers: request.headers || {
-      'content-type': 'application/json',
-    },
+    headers: request.headers || DEFAULT_HEADERS,
     params: request.params || {},
     query: request.query || {},
     body: request.payload || {},
   };
 
-  if (openapiRoute.typeCast) openapiRoute.typeCast.coerce(httpRequest);
+  if (openapiRoute.typeCast) {
+    openapiRoute.typeCast.coerce(httpRequest);
+  }
 
-  const validationProblems = openapiRoute.validator.validateRequest(httpRequest);
+  const validationErrors = openapiRoute.validator.validateRequest(httpRequest);
   
-  if (validationProblems) {
-    throw new Error('Request validation fails')
+  if (validationErrors) {
+    throw new ValidationError('Ошибка валидации запроса', {
+      code: 'REQUEST_VALIDATION_FAILED',
+      data: {
+        errors: formatValidationErrors(validationErrors.errors),
+        operationId: openapiRoute.operationId,
+      },
+    });
   }
 
   return {
@@ -59,4 +76,17 @@ export function validateRequest(request, openapiRoute) {
     params: httpRequest.params,
     query: httpRequest.query,
   };
+}
+
+function formatValidationErrors(errors) {
+  if (!errors || !Array.isArray(errors)) {
+    return [];
+  }
+
+  return errors.map(error => ({
+    path: error.path || error.dataPath || 'unknown',
+    message: error.message,
+    ...(error.params && { params: error.params }),
+    ...(error.errorCode && { code: error.errorCode }),
+  }));
 }

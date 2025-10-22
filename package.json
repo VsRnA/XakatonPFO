@@ -55,6 +55,7 @@
     "#models": "./src/models/index.js",
     "#routes": "./src/routes/index.js",
     "#errors": "./src/errors/index.js",
-    "#config/*:": "./config/*"
+    "#config/*:": "./config/*",
+    "#helpers/*": "./src/helpers/*"
   }
 }

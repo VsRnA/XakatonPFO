@@ -1,8 +1,25 @@
-import { ConflictError } from '#errors';
+import { ConflictError, NotFoundError } from '#errors';
 import { rUser, rRole, rUserRoleAssigment } from '#repos';
 import { hashPassword } from '#services/passwordHelper.js';
 import { generateToken } from '#services/jwtHelper.js';
 import { executeInTransaction } from '#db';
+
+function formatUserData(user) {
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    middleName: user.middleName,
+    roles: user.roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+      keyWord: role.keyWord,
+    })),
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+}
 
 export default async (request) => {
   const { email, firstName, lastName, middleName, password } = request.payload;
@@ -12,7 +29,18 @@ export default async (request) => {
 
     const existingUser = await rUser.findByEmail(email, options);
     if (existingUser) {
-      throw new ConflictError('Пользователь с таким email уже зарегистрирован');
+      throw new ConflictError('Пользователь с таким email уже зарегистрирован', {
+        code: 'EMAIL_ALREADY_EXISTS',
+        data: { field: 'email', value: email },
+      });
+    }
+
+    const userRole = await rRole.findByKeyWord('user', options);
+    if (!userRole) {
+      throw new NotFoundError('Роль пользователя не найдена в системе', {
+        code: 'ROLE_NOT_FOUND',
+        data: { role: 'user' },
+      });
     }
 
     const hashedPassword = await hashPassword(password);
@@ -25,39 +53,17 @@ export default async (request) => {
       password: hashedPassword,
     }, options);
 
-    const userRole = await rRole.findByKeyWord('user', options);
-    if (!userRole) {
-      throw new Error('Роль пользователя не найдена в системе');
-    }
-
     await rUserRoleAssigment.create({ 
       userId: newUser.id, 
       roleId: userRole.id 
     }, options);
-    
+
     const userWithRoles = await rUser.findByIdWithRoles(newUser.id, options);
 
-    const tokenPayload = {
-      userId: userWithRoles.id,
-    };
-
-    const token = generateToken(tokenPayload);
+    const token = generateToken({ userId: userWithRoles.id });
 
     return {
-      user: {
-        id: userWithRoles.id,
-        email: userWithRoles.email,
-        firstName: userWithRoles.firstName,
-        lastName: userWithRoles.lastName,
-        middleName: userWithRoles.middleName,
-        roles: userWithRoles.roles.map((role) => ({
-          id: role.id,
-          name: role.name,
-          keyWord: role.keyWord,
-        })),
-        createdAt: userWithRoles.createdAt,
-        updatedAt: userWithRoles.updatedAt,
-      },
+      user: formatUserData(userWithRoles),
       token,
     };
   });

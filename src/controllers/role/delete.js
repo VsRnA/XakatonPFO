@@ -1,19 +1,15 @@
 import { rRole } from '#repos';
-import { ValidationError, NotFoundError } from '#errors';
+import { findRoleOrFail } from '#helpers/role.js';
+import { parseInteger } from '#helpers/validation.js';
 
 export default async (request) => {
-  const { id } = request.params;
+  const id = parseInteger(request.params.id, 'id', { min: 1 });
 
-  if (!id || isNaN(id)) {
-    throw new ValidationError('Некорректный идентификатор роли');
-  }
+  await findRoleOrFail(id);
+  await rRole.delete(id);
 
-  const role = await rRole.findById(parseInt(id));
-  if (!role) {
-    throw new NotFoundError(`Роль с ID ${id} не найдена`);
-  }
-
-  await rRole.delete(parseInt(id));
-
-  return { message: 'Роль успешно удалена' };
+  return { 
+    message: 'Роль успешно удалена',
+    id,
+  };
 };

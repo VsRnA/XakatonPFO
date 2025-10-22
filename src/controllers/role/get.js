@@ -1,17 +1,11 @@
 import { rRole } from '#repos';
-import { ValidationError, NotFoundError } from '#errors';
+import { findRoleOrFail, formatRoleResponse } from '#helpers/role.js';
+import { parseInteger } from '#helpers/validation.js';
 
 export default async (request) => {
-  const { id } = request.params;
+  const id = parseInteger(request.params.id, 'id', { min: 1 });
 
-  if (!id || isNaN(id)) {
-    throw new ValidationError('Некорректный идентификатор роли');
-  }
+  const role = await findRoleOrFail(id);
 
-  const role = await rRole.findById(parseInt(id));
-  if (!role) {
-    throw new NotFoundError(`Роль с ID ${id} не найдена`);
-  }
-
-  return role;
+  return formatRoleResponse(role);
 };

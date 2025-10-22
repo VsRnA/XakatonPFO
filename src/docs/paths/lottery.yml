@@ -9,231 +9,16 @@ v1.createLottery:
     content:
       multipart/form-data:
         schema:
-          type: object
-          required:
-            - name
-            - startAt
-            - endAt
-            - amount
-          properties:
-            file:
-              type: string
-              format: binary
-              description: SVG изображение лотереи
-            name:
-              type: string
-              description: Название лотереи
-              example: "Новогодний розыгрыш 2025"
-            description:
-              type: string
-              description: Описание лотереи
-              example: "Разыгрываем крутые призы к Новому году"
-            startAt:
-              type: string
-              format: date-time
-              description: Дата и время начала лотереи
-              example: "2025-12-01T00:00:00Z"
-            endAt:
-              type: string
-              format: date-time
-              description: Дата и время окончания лотереи
-              example: "2025-12-31T23:59:59Z"
-            barrelCount:
-              type: number
-              description: Общее количество бочек в лотерее
-            barrelLimit:
-              type: number
-              description: Лимит бочек на одного участника
-            amount:
-              type: integer
-              example: 7000000
+          $ref: '../components/schemas/lottery.yml#/CreateLotteryRequest'
   responses:
     201:
-      description: Лотерея успешно создана
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              id:
-                type: integer
-                example: 1
-              name:
-                type: string
-                example: "Новогодний розыгрыш 2025"
-              description:
-                type: string
-                example: "Разыгрываем крутые призы к Новому году"
-              attachmentKey:
-                type: string
-                description: S3 ключ изображения
-                example: "lotteries/1634567890123-a1b2c3d4e5f6.svg"
-              startAt:
-                type: string
-                format: date-time
-                example: "2025-12-01T00:00:00Z"
-              endAt:
-                type: string
-                format: date-time
-                example: "2025-12-31T23:59:59Z"
-              amount:
-                type: integer
-                example: 7000000
-              organizator:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  email:
-                    type: string
-                    example: "admin@example.com"
-                  firstName:
-                    type: string
-                    example: "Иван"
-                  lastName:
-                    type: string
-                    example: "Иванов"
-              metadata:
-                type: object
-                properties:
-                  barrelCount:
-                    type: integer
-                    example: 90
-                  barrelLimit:
-                    type: integer
-                    example: 10
-                nullable: true
-              status:
-                type: string
-                enum: [draft, inProgress, finished]
-                example: "draft"
-              seedHash:
-                type: string
-                description: SHA-256 хеш от seed для проверки честности
-                example: "a3f5e8c2d1b4567890abcdef1234567890abcdef1234567890abcdef12345678"
-              drandRound:
-                type: integer
-                description: Номер раунда drand для получения случайного числа
-                example: 12345678
-              createdAt:
-                type: string
-                format: date-time
-                example: "2025-10-22T12:00:00.000Z"
+      $ref: '../components/responses/lottery.yml#/LotteryCreated'
     400:
       $ref: '../components/responses/errors.yml#/BadRequest'
     401:
       $ref: '../components/responses/errors.yml#/Unauthorized'
     403:
       $ref: '../components/responses/errors.yml#/Forbidden'
-    500:
-      $ref: '../components/responses/errors.yml#/InternalError'
-
-v1.getLotteryImage:
-  summary: Получение URL изображения лотереи
-  description: Возвращает подписанный URL для доступа к изображению лотереи из S3
-  tags:
-    - Lottery
-  security:
-    - JWTToken: []
-  parameters:
-    - name: id
-      in: path
-      required: true
-      description: ID лотереи
-      schema:
-        type: integer
-        example: 1
-  responses:
-    200:
-      description: URL изображения успешно получен
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              attachmentKey:
-                type: string
-                description: S3 ключ изображения
-                example: "lotteries/1634567890123-a1b2c3d4e5f6.svg"
-              url:
-                type: string
-                description: Подписанный URL для доступа к изображению
-                example: "https://bucket.s3.region.amazonaws.com/lotteries/1634567890123-a1b2c3d4e5f6.svg?X-Amz-Algorithm=..."
-              expiresIn:
-                type: integer
-                description: Время действия URL в секундах
-                example: 3600
-    404:
-      $ref: '../components/responses/errors.yml#/NotFound'
-    500:
-      $ref: '../components/responses/errors.yml#/InternalError'
-
-v1.listLotteries:
-  summary: Список всех лотерей
-  description: Возвращает список всех лотерей с поддержкой фильтрации и пагинации
-  tags:
-    - Lottery
-  security:
-    - JWTToken: []
-  parameters:
-    - name: page
-      in: query
-      required: false
-      description: Номер страницы
-      schema:
-        type: integer
-        default: 1
-        minimum: 1
-        example: 1
-    - name: limit
-      in: query
-      required: false
-      description: Количество элементов на странице
-      schema:
-        type: integer
-        default: 10
-        minimum: 1
-        maximum: 100
-        example: 10
-    - name: search
-      in: query
-      required: false
-      description: Поиск по названию или описанию лотереи
-      schema:
-        type: string
-        example: "Новогодний"
-    - name: status
-      in: query
-      required: false
-      description: Фильтр по статусу лотереи
-      schema:
-        type: string
-        enum: [draft, inProgress, finished]
-        example: "inProgress"
-    - name: organizatorId
-      in: query
-      required: false
-      description: Фильтр по ID организатора
-      schema:
-        type: integer
-        example: 1
-  responses:
-    200:
-      description: Список лотерей успешно получен
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              data:
-                type: array
-                items:
-                  $ref: '#/components/schemas/LotteryWithImage'
-              pagination:
-                $ref: '../components/schemas/common.yml#/Pagination'
-    400:
-      $ref: '../components/responses/errors.yml#/BadRequest'
     500:
       $ref: '../components/responses/errors.yml#/InternalError'
 
@@ -258,11 +43,32 @@ v1.getLottery:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LotteryWithImage'
+            $ref: '../components/schemas/lottery.yml#/LotteryWithImage'
     400:
       $ref: '../components/responses/errors.yml#/BadRequest'
     404:
       $ref: '../components/responses/errors.yml#/NotFound'
+    500:
+      $ref: '../components/responses/errors.yml#/InternalError'
+
+v1.listLotteries:
+  summary: Список всех лотерей
+  description: Возвращает список всех лотерей с поддержкой фильтрации и пагинации
+  tags:
+    - Lottery
+  security:
+    - JWTToken: []
+  parameters:
+    - $ref: '../components/parameters/lottery.yml#/PageQuery'
+    - $ref: '../components/parameters/lottery.yml#/LimitQuery'
+    - $ref: '../components/parameters/lottery.yml#/SearchQuery'
+    - $ref: '../components/parameters/lottery.yml#/StatusQuery'
+    - $ref: '../components/parameters/lottery.yml#/OrganizatorIdQuery'
+  responses:
+    200:
+      $ref: '../components/responses/lottery.yml#/LotteriesList'
+    400:
+      $ref: '../components/responses/errors.yml#/BadRequest'
     500:
       $ref: '../components/responses/errors.yml#/InternalError'
 
@@ -278,78 +84,14 @@ v1.registerInLottery:
     content:
       multipart/form-data:
         schema:
-          type: object
-          required:
-            - file
-            - lotteryId
-            - barrelsNumber
-          properties:
-            file:
-              type: string
-              format: binary
-              description: Изображение пользователя (JPEG, PNG, GIF, WebP)
-            lotteryId:
-              type: integer
-              description: ID лотереи
-              example: 1
-            barrelsNumber:
-              type: string
-              description: JSON-массив выбранных номеров бочек
-              example: "[1,15,23,42,67,89]"
+          $ref: '../components/schemas/lottery.yml#/RegisterInLotteryRequest'
   responses:
     201:
-      description: Пользователь успешно зарегистрирован в лотерее
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-                example: "Вы успешно зарегистрированы в лотерее"
-              assignment:
-                type: object
-                properties:
-                  userId:
-                    type: integer
-                    example: 1
-                  lotteryId:
-                    type: integer
-                    example: 1
-                  entropy:
-                    type: string
-                    example: "a1b2c3d4e5f6..."
-                  status:
-                    type: string
-                    enum: [inProgress, won, lost]
-                    example: "inProgress"
-                  registeredAt:
-                    type: string
-                    format: date-time
-                    example: "2025-10-22T12:00:00.000Z"
-              lottery:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  name:
-                    type: string
-                    example: "Новогодний розыгрыш 2025"
-                  startAt:
-                    type: string
-                    format: date-time
-                    example: "2025-12-01T00:00:00Z"
-                  endAt:
-                    type: string
-                    format: date-time
-                    example: "2025-12-31T23:59:59Z"
+      $ref: '../components/responses/lottery.yml#/LotteryRegistrationSuccess'
     400:
       $ref: '../components/responses/errors.yml#/BadRequest'
     401:
       $ref: '../components/responses/errors.yml#/Unauthorized'
-    403:
-      $ref: '../components/responses/errors.yml#/Forbidden'
     404:
       $ref: '../components/responses/errors.yml#/NotFound'
     409:
@@ -359,7 +101,7 @@ v1.registerInLottery:
 
 v1.calculateLotteryWinners:
   summary: Подведение итогов лотереи
-  description: Вычисляет победителей на основе drand randomness
+  description: Вычисляет результаты лотереи и определяет победителей (только для администраторов)
   tags:
     - Lottery
   security:
@@ -372,98 +114,14 @@ v1.calculateLotteryWinners:
           type: object
           required:
             - lotteryId
-            - drandRandomness
           properties:
             lotteryId:
               type: integer
-              description: ID лотереи
+              description: ID лотереи для расчёта результатов
               example: 1
-            drandRandomness:
-              type: string
-              description: Случайное значение от drand
-              example: "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
-              pattern: '^[a-f0-9]{64,}$'
   responses:
     200:
-      description: Победители успешно определены
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-                example: "Победители успешно определены"
-              lottery:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  name:
-                    type: string
-                    example: "Новогодний розыгрыш 2025"
-                  status:
-                    type: string
-                    example: "Calculated"
-              calculation:
-                type: object
-                properties:
-                  secretSeed:
-                    type: string
-                    example: "secret123..."
-                  drandRandomness:
-                    type: string
-                    example: "8d969eef..."
-                  finalSeed:
-                    type: string
-                    example: "a1b2c3d4..."
-                  winningBarrels:
-                    type: array
-                    items:
-                      type: integer
-                    example: [5, 12, 23, 45, 67, 89]
-                  totalParticipants:
-                    type: integer
-                    example: 150
-              winners:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    userId:
-                      type: integer
-                      example: 42
-                    entropy:
-                      type: string
-                      example: "user_entropy_hash..."
-                    playerBarrels:
-                      type: array
-                      items:
-                        type: integer
-                      example: [5, 12, 23, 45, 67, 88]
-                    matchCount:
-                      type: integer
-                      example: 5
-              results:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    placement:
-                      type: integer
-                      nullable: true
-                      example: 1
-                    userId:
-                      type: integer
-                      example: 42
-                    matchCount:
-                      type: integer
-                      example: 5
-                    status:
-                      type: string
-                      enum: [won, lost]
-                      example: "won"
+      $ref: '../components/responses/lottery.yml#/LotteryCalculationSuccess'
     400:
       $ref: '../components/responses/errors.yml#/BadRequest'
     401:
@@ -483,131 +141,10 @@ v1.getUserLotteryResults:
   security:
     - JWTToken: []
   parameters:
-    - in: path
-      name: lotteryId
-      required: true
-      schema:
-        type: integer
-      description: ID лотереи
-      example: 1
+    - $ref: '../components/parameters/lottery.yml#/LotteryIdPathParam'
   responses:
     200:
-      description: Результаты успешно получены
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              lottery:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  name:
-                    type: string
-                    example: "Новогодний розыгрыш 2025"
-                  status:
-                    type: string
-                    example: "Calculated"
-                  startAt:
-                    type: string
-                    format: date-time
-                  endAt:
-                    type: string
-                    format: date-time
-                  totalParticipants:
-                    type: integer
-                    example: 150
-                  winnersCount:
-                    type: integer
-                    example: 3
-                  calculatedAt:
-                    type: string
-                    format: date-time
-              userResult:
-                type: object
-                properties:
-                  userId:
-                    type: integer
-                    example: 42
-                  status:
-                    type: string
-                    enum: [won, lost]
-                    example: "won"
-                  placement:
-                    type: integer
-                    nullable: true
-                    example: 1
-                  matchCount:
-                    type: integer
-                    example: 5
-                  percentile:
-                    type: integer
-                    description: "Процент участников, которых обошел пользователь"
-                    example: 98
-                  isWinner:
-                    type: boolean
-                    example: true
-              barrels:
-                type: object
-                properties:
-                  player:
-                    type: array
-                    items:
-                      type: integer
-                    example: [5, 12, 23, 45, 67, 88]
-                  winning:
-                    type: array
-                    items:
-                      type: integer
-                    example: [5, 12, 23, 45, 67, 89]
-                  matched:
-                    type: array
-                    items:
-                      type: integer
-                    example: [5, 12, 23, 45, 67]
-              verification:
-                type: object
-                description: "Данные для верификации честности розыгрыша"
-                properties:
-                  entropy:
-                    type: string
-                    example: "user_entropy_hash..."
-                  secretSeed:
-                    type: string
-                    example: "secret123..."
-                  drandRandomness:
-                    type: string
-                    example: "8d969eef..."
-                  finalSeed:
-                    type: string
-                    example: "a1b2c3d4..."
-                  seedHash:
-                    type: string
-                    example: "hash_of_secret..."
-              leaderboard:
-                type: array
-                description: "Топ-10 участников"
-                items:
-                  type: object
-                  properties:
-                    userId:
-                      type: integer
-                      example: 42
-                    placement:
-                      type: integer
-                      example: 1
-                    matchCount:
-                      type: integer
-                      example: 5
-                    status:
-                      type: string
-                      enum: [won, lost]
-                      example: "won"
-                    isCurrentUser:
-                      type: boolean
-                      example: true
+      $ref: '../components/responses/lottery.yml#/UserLotteryResultsSuccess'
     401:
       $ref: '../components/responses/errors.yml#/Unauthorized'
     403:
@@ -616,90 +153,3 @@ v1.getUserLotteryResults:
       $ref: '../components/responses/errors.yml#/NotFound'
     500:
       $ref: '../components/responses/errors.yml#/InternalError'
-
-components:
-  schemas:
-    LotteryWithImage:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: "Новогодний розыгрыш 2025"
-        description:
-          type: string
-          example: "Разыгрываем крутые призы к Новому году"
-        image:
-          type: object
-          nullable: true
-          properties:
-            attachmentKey:
-              type: string
-              description: S3 ключ изображения
-              example: "lotteries/1634567890123-a1b2c3d4e5f6.svg"
-            url:
-              type: string
-              description: Подписанный URL для доступа к изображению
-              example: "https://bucket.s3.region.amazonaws.com/lotteries/1634567890123-a1b2c3d4e5f6.svg?X-Amz-Algorithm=..."
-            expiresIn:
-              type: integer
-              description: Время действия URL в секундах
-              example: 3600
-        amount:
-          type: number
-          example: 100000.50
-        startAt:
-          type: string
-          format: date-time
-          example: "2025-12-01T00:00:00Z"
-        endAt:
-          type: string
-          format: date-time
-          example: "2025-12-31T23:59:59Z"
-        organizator:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 1
-            email:
-              type: string
-              example: "admin@example.com"
-            firstName:
-              type: string
-              example: "Иван"
-            lastName:
-              type: string
-              example: "Иванов"
-        metadata:
-          type: object
-          properties:
-            barrelCount:
-              type: integer
-              example: 90
-            barrelLimit:
-              type: integer
-              example: 10
-          nullable: true
-        status:
-          type: string
-          enum: [draft, inProgress, finished]
-          example: "draft"
-        seedHash:
-          type: string
-          description: SHA-256 хеш от seed для проверки честности розыгрыша
-          example: "a3f5e8c2d1b4567890abcdef1234567890abcdef1234567890abcdef12345678"
-        drandRound:
-          type: integer
-          description: Номер раунда drand для получения случайного числа. Используйте API https://api.drand.sh/{chainHash}/public/{round}
-          example: 12345678
-        createdAt:
-          type: string
-          format: date-time
-          example: "2025-10-22T12:00:00.000Z"
-        updatedAt:
-          type: string
-          format: date-time
-          example: "2025-10-22T12:00:00.000Z"

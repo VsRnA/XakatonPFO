@@ -10,48 +10,10 @@ v1.registration:
       content:
         application/json:
           schema:
-            type: object
-            required:
-              - email
-              - firstName
-              - lastName
-              - password
-            properties:
-              email:
-                type: string
-                format: email
-                description: Email адрес пользователя
-                example: "user@example.com"
-              firstName:
-                type: string
-                description: Имя пользователя
-                example: "Иван"
-                minLength: 1
-                maxLength: 50
-              lastName:
-                type: string
-                description: Фамилия пользователя
-                example: "Иванов"
-                minLength: 1
-                maxLength: 50
-              middleName:
-                type: string
-                description: Отчество пользователя (необязательное поле)
-                example: "Иванович"
-                maxLength: 50
-              password:
-                type: string
-                format: password
-                description: Пароль пользователя (минимум 8 символов)
-                example: "SecurePassword123!"
-                minLength: 8
+            $ref: '../components/schemas/auth.yml#/RegistrationRequest'
     responses:
       201:
-        description: Пользователь успешно зарегистрирован
-        content:
-          application/json:
-            schema:
-              $ref: '../components/schemas/user.yml#/AuthResponse'
+        $ref: '../components/responses/auth.yml#/RegistrationSuccess'
       400:
         $ref: '../components/responses/errors.yml#/BadRequest'
       409:
@@ -71,28 +33,10 @@ v1.login:
       content:
         application/json:
           schema:
-            type: object
-            required:
-              - email
-              - password
-            properties:
-              email:
-                type: string
-                format: email
-                description: Email адрес пользователя
-                example: "user@example.com"
-              password:
-                type: string
-                format: password
-                description: Пароль пользователя
-                example: "SecurePassword123!"
+            $ref: '../components/schemas/auth.yml#/LoginRequest'
     responses:
       200:
-        description: Успешная аутентификация
-        content:
-          application/json:
-            schema:
-              $ref: '../components/schemas/user.yml#/AuthResponse'
+        $ref: '../components/responses/auth.yml#/LoginSuccess'
       400:
         $ref: '../components/responses/errors.yml#/BadRequest'
       401:

@@ -13,7 +13,8 @@
       "#repositories/*": ["./src/repositories/*"],
       "#models": ["./src/models/index.js"],
       "#routes": ["./src/routes/index.js"],
-      "#errors": ["./src/errors/index.js"]
+      "#errors": ["./src/errors/index.js"],
+      "#helpers/*": ["./src/helpers/*"]
     }
   }
 }

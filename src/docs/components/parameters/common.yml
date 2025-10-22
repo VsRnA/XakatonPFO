@@ -1,21 +1,3 @@
-RoleId:
-  name: id
-  in: path
-  required: true
-  description: ID роли
-  schema:
-    type: integer
-    example: 1
-
-UserId:
-  name: id
-  in: path
-  required: true
-  description: ID пользователя
-  schema:
-    type: integer
-    example: 1
-
 PageQuery:
   name: page
   in: query
@@ -39,11 +21,11 @@ LimitQuery:
     maximum: 100
     example: 10
 
-SearchQuery:
-  name: search
-  in: query
-  required: false
-  description: Поисковый запрос
+RoleId:
+  name: id
+  in: path
+  required: true
+  description: ID роли
   schema:
-    type: string
-    example: "поиск"
+    type: integer
+    example: 1

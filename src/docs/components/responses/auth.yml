@@ -1,0 +1,13 @@
+RegistrationSuccess:
+  description: Пользователь успешно зарегистрирован
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/user.yml#/AuthResponse'
+
+LoginSuccess:
+  description: Успешная аутентификация
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/user.yml#/AuthResponse'

@@ -1,82 +1,59 @@
-import { NotFoundError, ForbiddenError } from '#errors';
 import { rLottery, rUserLotteryAssigned } from '#repos';
-import { generateWinningBarrels, calculateMatches } from '#services/lotteryCalculation.js';
+import { generateWinningBarrels } from '#services/lotteryCalculation.js';
 import { executeInTransaction } from '#db';
-import crypto from 'crypto';
+import { parseInteger } from '#helpers/validation.js';
+import {
+  findLotteryOrFail,
+  requireOrganizator,
+  requireLotteryStatus,
+} from '#helpers/lotteryValidation.js';
+import {
+  verifySeedHash,
+  calculateFinalSeed,
+  processParticipantResults,
+  determineWinners,
+} from '#helpers/lotteryCalculation.js';
+import { formatCalculationResponse } from '#helpers/lotteryFormatters.js';
 
 export default async (request) => {
   const { user } = request.context;
-  const { lotteryId, drandRandomness } = request.payload;
+  const lotteryId = parseInteger(request.payload.lotteryId, 'lotteryId', { min: 1 });
+  const { drandRandomness } = request.payload;
 
   return await executeInTransaction(async (transaction) => {
     const options = { transaction };
 
-    // Проверяем существование лотереи
-    const lottery = await rLottery.findById(parseInt(lotteryId), options);
-    if (!lottery) {
-      throw new NotFoundError('Лотерея не найдена');
-    }
+    const lottery = await findLotteryOrFail(lotteryId, options);
 
-    // Проверяем, что пользователь - организатор
-    if (lottery.organizatorId !== user.id) {
-      throw new ForbiddenError('Только организатор может подвести итоги лотереи');
-    }
+    requireOrganizator(lottery, user.id);
 
-    // Проверяем статус лотереи
-    if (lottery.status !== 'finished') {
-      throw new ForbiddenError('Лотерея должна быть в статусе "finished" для подведения итогов');
-    }
+    requireLotteryStatus(lottery, 'finished', 'Лотерея должна быть в статусе "finished" для подведения итогов');
 
-    // Получаем всех участников лотереи
-    const participants = await rUserLotteryAssigned.list({
-      lotteryId,
-    }, options);
+    const participants = await rUserLotteryAssigned.list({ lotteryId }, options);
 
-    const secretSeed = lottery.seed;
+    verifySeedHash(lottery.seed, lottery.seedHash);
 
-    const calculatedSeedHash = crypto.createHash('sha256').update(secretSeed).digest('hex');
-    if (calculatedSeedHash !== lottery.seedHash) {
-      throw new Error('Несоответствие seed и seedHash - нарушена целостность данных');
-    }
-
-    const allEntropies = participants.map(p => p.entropy).sort();
-
-    const finalSeedComponents = [
-      secretSeed,
-      drandRandomness,
-      ...allEntropies,
-    ].join('-');
-
-
-    const finalSeed = crypto.createHash('sha256').update(finalSeedComponents).digest('hex');
+    const entropies = participants.map(p => p.entropy);
+    const finalSeed = calculateFinalSeed(lottery.seed, drandRandomness, entropies);
 
     const winningBarrels = generateWinningBarrels(finalSeed, lottery.metadata.barrelLimit);
 
-    const results = [];
-    
-    for (const participant of participants) {
-      const playerBarrels = JSON.parse(participant.metadata?.barrelsNumber || '[]');
-      
-      const matchCount = calculateMatches(playerBarrels, winningBarrels);
+    const results = processParticipantResults(participants, winningBarrels);
 
-      results.push({
-        userId: participant.userId,
-        entropy: participant.entropy,
-        playerBarrels,
-        matchCount,
-      });
-    }
-
-    results.sort((a, b) => b.matchCount - a.matchCount);
-
-    const maxMatches = results[0]?.matchCount || 0;
-    const winners = results.filter(r => r.matchCount === maxMatches && r.matchCount > 0);
+    const winners = determineWinners(results);
 
     let placement = 1;
     for (const result of results) {
       const isWinner = winners.some(w => w.entropy === result.entropy);
       
-      await rUserLotteryAssigned.update(lotteryId, result, participants, isWinner, placement, options);
+      await rUserLotteryAssigned.update(
+        lotteryId,
+        result,
+        participants,
+        isWinner,
+        placement,
+        options
+      );
 
       const nextResult = results[placement];
       if (nextResult && nextResult.matchCount < result.matchCount) {
@@ -85,7 +62,7 @@ export default async (request) => {
     }
 
     await rLottery.update(
-      parseInt(lotteryId),
+      lotteryId,
       {
         status: 'Calculated',
         metadata: {
@@ -101,32 +78,17 @@ export default async (request) => {
       options
     );
 
-    return {
-      message: 'Победители успешно определены',
-      lottery: {
-        id: lottery.id,
-        name: lottery.name,
-        status: 'Calculated',
-      },
-      calculation: {
-        secretSeed,
+    return formatCalculationResponse(
+      lottery,
+      {
+        secretSeed: lottery.seed,
         drandRandomness,
         finalSeed,
         winningBarrels,
         totalParticipants: participants.length,
       },
-      winners: winners.map(w => ({
-        userId: w.userId,
-        entropy: w.entropy,
-        playerBarrels: w.playerBarrels,
-        matchCount: w.matchCount,
-      })),
-      results: results.map((r, index) => ({
-        placement: r.matchCount > 0 ? index + 1 : null,
-        userId: r.userId,
-        matchCount: r.matchCount,
-        status: winners.some(w => w.entropy === r.entropy) ? 'won' : 'lost',
-      })),
-    };
+      winners,
+      results
+    );
   });
 };

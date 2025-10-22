@@ -1,0 +1,48 @@
+LotteryCreated:
+  description: Лотерея успешно создана
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/lottery.yml#/Lottery'
+
+LotteryImageUrl:
+  description: URL изображения успешно получен
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/lottery.yml#/LotteryImage'
+
+LotteriesList:
+  description: Список лотерей успешно получен
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '../schemas/lottery.yml#/LotteryWithImage'
+          pagination:
+            $ref: '../schemas/common.yml#/Pagination'
+
+LotteryRegistrationSuccess:
+  description: Пользователь успешно зарегистрирован в лотерее
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/lottery.yml#/LotteryRegistrationResponse'
+
+LotteryCalculationSuccess:
+  description: Результаты лотереи успешно рассчитаны
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/lottery.yml#/LotteryCalculationResponse'
+
+UserLotteryResultsSuccess:
+  description: Результаты успешно получены
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/lottery.yml#/UserLotteryResults'

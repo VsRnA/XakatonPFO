@@ -7,36 +7,10 @@ v1.createRole:
     content:
       application/json:
         schema:
-          type: object
-          required:
-            - name
-            - keyWord
-          properties:
-            name:
-              type: string
-              description: Название роли
-              example: "Модератор"
-              minLength: 1
-              maxLength: 100
-            keyWord:
-              type: string
-              description: Уникальный ключ роли для программного использования
-              example: "moderator"
-              pattern: '^[a-z_]+$'
-              minLength: 1
-              maxLength: 50
-            description:
-              type: string
-              description: Описание роли
-              example: "Модератор контента"
-              maxLength: 500
+          $ref: '../components/schemas/role.yml#/CreateRoleRequest'
   responses:
     201:
-      description: Роль успешно создана
-      content:
-        application/json:
-          schema:
-            $ref: '../components/schemas/role.yml#/Role'
+      $ref: '../components/responses/role.yml#/RoleCreated'
     400:
       $ref: '../components/responses/errors.yml#/BadRequest'
     401:
@@ -56,27 +30,10 @@ v1.listRoles:
   parameters:
     - $ref: '../components/parameters/common.yml#/PageQuery'
     - $ref: '../components/parameters/common.yml#/LimitQuery'
-    - name: search
-      in: query
-      required: false
-      description: Поиск по названию или ключевому слову роли
-      schema:
-        type: string
-        example: "admin"
+    - $ref: '../components/parameters/role.yml#/RoleSearchQuery'
   responses:
     200:
-      description: Список ролей успешно получен
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              data:
-                type: array
-                items:
-                  $ref: '../components/schemas/role.yml#/Role'
-              pagination:
-                $ref: '../components/schemas/common.yml#/Pagination'
+      $ref: '../components/responses/role.yml#/RolesList'
     401:
       $ref: '../components/responses/errors.yml#/Unauthorized'
     500:
@@ -93,11 +50,7 @@ v1.getRole:
     - $ref: '../components/parameters/common.yml#/RoleId'
   responses:
     200:
-      description: Роль успешно получена
-      content:
-        application/json:
-          schema:
-            $ref: '../components/schemas/role.yml#/Role'
+      $ref: '../components/responses/role.yml#/RoleSuccess'
     401:
       $ref: '../components/responses/errors.yml#/Unauthorized'
     404:
@@ -118,33 +71,10 @@ v1.updateRole:
     content:
       application/json:
         schema:
-          type: object
-          properties:
-            name:
-              type: string
-              description: Название роли
-              example: "Супер Модератор"
-              minLength: 1
-              maxLength: 100
-            keyWord:
-              type: string
-              description: Уникальный ключ роли
-              example: "super_moderator"
-              pattern: '^[a-z_]+$'
-              minLength: 1
-              maxLength: 50
-            description:
-              type: string
-              description: Описание роли
-              example: "Модератор с расширенными правами"
-              maxLength: 500
+          $ref: '../components/schemas/role.yml#/UpdateRoleRequest'
   responses:
     200:
-      description: Роль успешно обновлена
-      content:
-        application/json:
-          schema:
-            $ref: '../components/schemas/role.yml#/Role'
+      $ref: '../components/responses/role.yml#/RoleUpdated'
     400:
       $ref: '../components/responses/errors.yml#/BadRequest'
     401:
@@ -167,11 +97,7 @@ v1.deleteRole:
     - $ref: '../components/parameters/common.yml#/RoleId'
   responses:
     200:
-      description: Роль успешно удалена
-      content:
-        application/json:
-          schema:
-            $ref: '../components/schemas/common.yml#/SuccessMessage'
+      $ref: '../components/responses/role.yml#/RoleDeleted'
     401:
       $ref: '../components/responses/errors.yml#/Unauthorized'
     403:

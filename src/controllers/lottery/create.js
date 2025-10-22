@@ -1,4 +1,3 @@
-import { ForbiddenError } from '#errors';
 import { rLottery } from '#repos';
 import { deleteFile, uploadFile } from '#services/fileUpload.js';
 import { executeInTransaction } from '#db';
@@ -7,10 +6,17 @@ import {
   createSeedHash, 
   calculateDrandRound 
 } from '#services/drandServices.js';
+import { formatLotteryResponse } from '#helpers/lottery.js';
+import { 
+  requireAdmin, 
+  validateLotteryDates, 
+  parseLotteryMetadata,
+  parseInteger 
+} from '#helpers/validation.js';
 
 export default async (request) => {
   const { user } = request.context;
-  const file = request.file;
+  const { file } = request;
   const { 
     name, 
     description, 
@@ -21,23 +27,17 @@ export default async (request) => {
     amount,
   } = request.payload;
 
-  if (!user || !user.roles.includes('admin')) {
-    throw new ForbiddenError('Только администраторы могут создавать лотереи');
-  }
+  // Проверяем права
+  requireAdmin(user);
 
-  const start = new Date(startAt);
-  const end = new Date(endAt);
+  // Валидируем входные данные
+  const { start, end } = validateLotteryDates(startAt, endAt);
+  const metadata = parseLotteryMetadata(barrelCount, barrelLimit);
+  const parsedAmount = parseInteger(amount, 'amount', { min: 1 });
 
-  const metadata = {
-    barrelCount: parseInt(barrelCount),
-    barrelLimit: parseInt(barrelLimit),
-  };
-
-  // Генерируем seed и его hash
+  // Генерируем данные для лотереи
   const seed = generateLotterySeed();
   const seedHash = createSeedHash(seed);
-
-  // Вычисляем drand раунд на основе времени окончания
   const drandRound = calculateDrandRound(end);
 
   let uploadedFile = null;
@@ -46,53 +46,39 @@ export default async (request) => {
     return await executeInTransaction(async (transaction) => {
       const options = { transaction };
 
+      // Загружаем файл
       uploadedFile = await uploadFile(file, 'lotteries');
 
+      // Создаём лотерею
       const lottery = await rLottery.create({
         name,
         description: description || null,
-        attachmentKey: uploadedFile.key, 
+        attachmentKey: uploadedFile.key,
         startAt: start,
         endAt: end,
         organizatorId: user.id,
-        metadata: Object.keys(metadata).length > 0 ? metadata : null,
+        metadata,
         status: 'draft',
-        amount: parseInt(amount),
+        amount: parsedAmount,
         seed,
-        seedHash, 
-        drandRound, 
+        seedHash,
+        drandRound,
       }, options);
 
+      // Получаем созданную лотерею с организатором
       const createdLottery = await rLottery.findById(lottery.id, options);
 
-      return {
-        id: createdLottery.id,
-        name: createdLottery.name,
-        description: createdLottery.description,
-        attachmentKey: createdLottery.attachmentKey,
-        startAt: createdLottery.startAt,
-        endAt: createdLottery.endAt,
-        organizator: {
-          id: createdLottery.organizator.id,
-          email: createdLottery.organizator.email,
-          firstName: createdLottery.organizator.firstName,
-          lastName: createdLottery.organizator.lastName,
-        },
-        metadata: createdLottery.metadata,
-        status: createdLottery.status,
-        seedHash: createdLottery.seedHash,
-        drandRound: createdLottery.drandRound,
-        createdAt: createdLottery.createdAt,
-        amount: createdLottery.amount,
-      };
+      return formatLotteryResponse(createdLottery, { includeImage: false });
     });
   } catch (error) {
+    // Откатываем загрузку файла при ошибке
     if (uploadedFile) {
-      try {
-        await deleteFile(uploadedFile.key);
-      } catch (deleteError) {
-        console.error('Ошибка удаления файла после неудачного создания лотереи:', deleteError);
-      }
+      await deleteFile(uploadedFile.key).catch((deleteError) => {
+        console.error('Failed to delete file after lottery creation error:', {
+          key: uploadedFile.key,
+          error: deleteError.message,
+        });
+      });
     }
     throw error;
   }

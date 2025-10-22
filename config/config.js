@@ -1,12 +1,11 @@
 import Joi from 'joi';
-
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const envVarsSchema = Joi.object({
   NODE_ENV: Joi.string()
-    .allow(['development', 'production'])
+    .valid('development', 'production') // .allow() устарел, используйте .valid()
     .default('development'),
   PORT: Joi.number().default(4060),
   JWT_SECRET: Joi.string().required()
@@ -14,6 +13,9 @@ const envVarsSchema = Joi.object({
   MYSQL_HOST: Joi.string().required()
     .description('MySQL host url'),
   MYSQL_PORT: Joi.number().default(3306), 
+  MYSQL_USER: Joi.string().required(), // Добавьте валидацию для используемых переменных
+  MYSQL_PASSWORD: Joi.string().required(),
+  MYSQL_DB: Joi.string().required(),
   MODELS_DIR: Joi.string().default('src/models'),
   TIMEWEB_ACCESS_KEY_ID: Joi.string(),
   TIMEWEB_SECRET_ACCESS_KEY: Joi.string(),
@@ -22,10 +24,8 @@ const envVarsSchema = Joi.object({
   TIMEWEB_ENDPOINT: Joi.string(),
 }).unknown().required();
 
-const { error, value: envVars } = Joi.validate({
-  ...process.env,
-  SERVICES: process.env.SERVICES?.split(',').filter((name) => !!name),
-}, envVarsSchema);
+const { error, value: envVars } = envVarsSchema.validate(process.env); // Joi.validate() устарел
+
 if (error) {
   throw new Error(`Configuration validation error: ${error.message}`);
 }

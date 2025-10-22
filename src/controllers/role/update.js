@@ -1,42 +1,38 @@
+// update.js
 import { rRole } from '#repos';
-import { ValidationError, NotFoundError, ConflictError } from '#errors';
+import { ValidationError } from '#errors';
+import {
+  findRoleOrFail,
+  parseRoleData,
+  checkKeyWordUniqueness,
+  formatRoleResponse,
+} from '#helpers/role.js';
+import { parseInteger } from '#helpers/validation.js';
 
 export default async (request) => {
-  const { id } = request.params;
-  const { name, keyWord, description } = request.payload;
+  const id = parseInteger(request.params.id, 'id', { min: 1 });
 
-  if (!id || isNaN(id)) {
-    throw new ValidationError('Некорректный идентификатор роли');
+  const role = await findRoleOrFail(id);
+
+  const updateData = parseRoleData(request.payload, {
+    requireName: false,
+    requireKeyWord: false,
+  });
+
+  if (Object.keys(updateData).length === 0) {
+    throw new ValidationError('Необходимо указать хотя бы одно поле для обновления', {
+      code: 'NO_UPDATE_FIELDS',
+      data: { availableFields: ['name', 'keyWord', 'description'] },
+    });
   }
 
-  if (!name && !keyWord && description === undefined) {
-    throw new ValidationError('Необходимо указать хотя бы одно поле для обновления');
+  if (updateData.keyWord && updateData.keyWord !== role.keyWord) {
+    await checkKeyWordUniqueness(updateData.keyWord, id);
   }
 
-  const role = await rRole.findById(parseInt(id));
-  if (!role) {
-    throw new NotFoundError(`Роль с ID ${id} не найдена`);
-  }
+  await rRole.update(id, updateData);
 
-  if (keyWord && keyWord !== role.keyWord) {
-    const keyWordPattern = /^[a-z_]+$/;
-    if (!keyWordPattern.test(keyWord)) {
-      throw new ValidationError('Поле "keyWord" может содержать только латинские буквы в нижнем регистре и символ "_"');
-    }
+  const updatedRole = await rRole.findById(id);
 
-    const existingRole = await rRole.findByKeyWord(keyWord);
-    if (existingRole) {
-      throw new ConflictError(`Роль с ключом "${keyWord}" уже существует`);
-    }
-  }
-
-  const updateData = {};
-  if (name) updateData.name = name;
-  if (keyWord) updateData.keyWord = keyWord;
-  if (description !== undefined) updateData.description = description;
-
-  await rRole.update(parseInt(id), updateData);
-
-  const updatedRole = await rRole.findById(parseInt(id));
-  return updatedRole;
+  return formatRoleResponse(updatedRole);
 };

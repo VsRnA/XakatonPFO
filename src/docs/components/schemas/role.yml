@@ -1,3 +1,50 @@
+CreateRoleRequest:
+  type: object
+  required:
+    - name
+    - keyWord
+  properties:
+    name:
+      type: string
+      description: Название роли
+      example: "Модератор"
+      minLength: 1
+      maxLength: 100
+    keyWord:
+      type: string
+      description: Уникальный ключ роли для программного использования
+      example: "moderator"
+      pattern: '^[a-z_]+$'
+      minLength: 1
+      maxLength: 50
+    description:
+      type: string
+      description: Описание роли
+      example: "Модератор контента"
+      maxLength: 500
+
+UpdateRoleRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Название роли
+      example: "Супер Модератор"
+      minLength: 1
+      maxLength: 100
+    keyWord:
+      type: string
+      description: Уникальный ключ роли
+      example: "super_moderator"
+      pattern: '^[a-z_]+$'
+      minLength: 1
+      maxLength: 50
+    description:
+      type: string
+      description: Описание роли
+      example: "Модератор с расширенными правами"
+      maxLength: 500
+
 Role:
   type: object
   properties:
@@ -6,22 +53,21 @@ Role:
       example: 1
     name:
       type: string
-      example: "Администратор"
+      example: "Модератор"
     keyWord:
       type: string
-      example: "admin"
+      example: "moderator"
     description:
       type: string
-      example: "Полный доступ к системе"
-      nullable: true
+      example: "Модератор контента"
     createdAt:
       type: string
       format: date-time
-      example: "2025-10-21T12:00:00.000Z"
+      example: "2025-10-22T12:00:00.000Z"
     updatedAt:
       type: string
       format: date-time
-      example: "2025-10-21T12:00:00.000Z"
+      example: "2025-10-22T12:00:00.000Z"
 
 RoleShort:
   type: object

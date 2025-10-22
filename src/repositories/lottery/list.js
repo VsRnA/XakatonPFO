@@ -58,6 +58,8 @@ export default async ({
     }
   }
 
+  console.log(where);
+
   const queryOptions = {
     where,
     order: [['createdAt', 'DESC']],

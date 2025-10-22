@@ -1,14 +1,22 @@
-import { NotFoundError, ForbiddenError, ConflictError } from '#errors';
-import { rLottery, rUserLotteryAssigned, rEntropyAttachment } from '#repos';
+// registerInLottery.js
+import { rUserLotteryAssigned, rEntropyAttachment } from '#repos';
 import { uploadFile, deleteFile } from '#services/fileUpload.js';
-import { generateEntropy} from '#services/entropyServices.js';
+import { generateEntropy } from '#services/entropyServices.js';
 import { executeInTransaction } from '#db';
+import { parseInteger } from '#helpers/validation.js';
+import {
+  findLotteryOrFail,
+  requireLotteryStatus,
+  validateLotteryRegistrationPeriod,
+  checkUserNotRegistered,
+} from '#helpers/lotteryValidation.js';
+import { formatRegistrationResponse } from '#helpers/lotteryFormatters.js';
 
 export default async (request) => {
   const { user } = request.context;
-  const file = request.file;
-  const { lotteryId, barrelsNumber } = request.payload;
-
+  const { file } = request;
+  const lotteryId = parseInteger(request.payload.lotteryId, 'lotteryId', { min: 1 });
+  const { barrelsNumber } = request.payload;
 
   let uploadedFile = null;
 
@@ -16,54 +24,31 @@ export default async (request) => {
     return await executeInTransaction(async (transaction) => {
       const options = { transaction };
 
-      // Проверяем существование лотереи
-      const lottery = await rLottery.findById(parseInt(lotteryId), options);
-      if (!lottery) {
-        throw new NotFoundError('Лотерея не найдена');
-      }
+      const lottery = await findLotteryOrFail(lotteryId, options);
 
-      // Проверяем статус лотереи
-      if (lottery.status !== 'inProgress') {
-        throw new ForbiddenError('Регистрация в эту лотерею недоступна');
-      }
+      requireLotteryStatus(lottery, 'inProgress', 'Регистрация в эту лотерею недоступна');
 
-      // Проверяем даты лотереи
-      const now = new Date();
-      if (now < new Date(lottery.startAt)) {
-        throw new ForbiddenError('Лотерея еще не началась');
-      }
-      if (now > new Date(lottery.endAt)) {
-        throw new ForbiddenError('Лотерея уже завершена');
-      }
+      validateLotteryRegistrationPeriod(lottery);
 
-      // Проверяем, не зарегистрирован ли уже пользователь
-      const existingAssignment = await rUserLotteryAssigned.findByUserAndLottery(
-        user.id,
-        parseInt(lotteryId),
-        options
-      );
-
-      if (existingAssignment) {
-        throw new ConflictError('Вы уже зарегистрированы в этой лотерее');
-      }
+      await checkUserNotRegistered(user.id, lotteryId, options);
 
       uploadedFile = await uploadFile(file, `lottery-${lotteryId}/user-${user.id}`);
 
       const entropy = generateEntropy(
         user.id,
-        parseInt(lotteryId),
+        lotteryId,
         JSON.parse(barrelsNumber),
         file.buffer
       );
 
       const assignment = await rUserLotteryAssigned.create({
         userId: user.id,
-        lotteryId: parseInt(lotteryId),
+        lotteryId,
         entropy,
         status: 'inProgress',
         placement: null,
         metadata: {
-          barrelsNumber, 
+          barrelsNumber,
           registeredAt: new Date().toISOString(),
         },
       }, options);
@@ -73,30 +58,16 @@ export default async (request) => {
         attachmentKey: uploadedFile.key,
       }, options);
 
-      return {
-        message: 'Вы успешно зарегистрированы в лотерее',
-        assignment: {
-          userId: assignment.userId,
-          lotteryId: assignment.lotteryId,
-          entropy: assignment.entropy,
-          status: assignment.status,
-          registeredAt: assignment.metadata?.registeredAt,
-        },
-        lottery: {
-          id: lottery.id,
-          name: lottery.name,
-          startAt: lottery.startAt,
-          endAt: lottery.endAt,
-        },
-      };
+      return formatRegistrationResponse(assignment, lottery);
     });
   } catch (error) {
     if (uploadedFile) {
-      try {
-        await deleteFile(uploadedFile.key);
-      } catch (deleteError) {
-        console.error('Ошибка удаления файла после неудачной регистрации:', deleteError);
-      }
+      await deleteFile(uploadedFile.key).catch((deleteError) => {
+        console.error('Failed to delete file after registration error:', {
+          key: uploadedFile.key,
+          error: deleteError.message,
+        });
+      });
     }
     throw error;
   }
