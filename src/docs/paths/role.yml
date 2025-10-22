@@ -3,8 +3,6 @@ v1.createRole:
   description: Создает новую роль в системе
   tags:
     - Roles
-  security:
-    - JWTToken: []
   requestBody:
     required: true
     content:
