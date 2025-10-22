@@ -12,7 +12,8 @@ export default async (request) => {
     startAt, 
     endAt,
     barrelCount,
-    barrelLimit 
+    barrelLimit,
+    amount,
   } = request.payload;
 
   if (!user || !user.roles.includes('admin')) {
@@ -45,6 +46,7 @@ export default async (request) => {
         organizatorId: user.id,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
         status: 'draft',
+        amount: parseInt(amount),
       }, options);
 
       const createdLottery = await rLottery.findById(lottery.id, options);
@@ -65,6 +67,7 @@ export default async (request) => {
         metadata: createdLottery.metadata,
         status: createdLottery.status,
         createdAt: createdLottery.createdAt,
+        amount: createdLottery.amount,
       };
     });
   } catch (error) {

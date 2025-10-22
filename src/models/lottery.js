@@ -38,6 +38,10 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.JSON,
       allowNull: true,
     },
+    amount: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
   }, {
     timestamps: true,
     tableName: 'lottery',

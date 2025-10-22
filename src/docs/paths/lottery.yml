@@ -14,6 +14,7 @@ v1.createLottery:
             - name
             - startAt
             - endAt
+            - amount
           properties:
             file:
               type: string
@@ -43,6 +44,9 @@ v1.createLottery:
             barrelLimit:
               type: number
               description: Лимит бочек на одного участника
+              amount:
+                type: integer
+                example: 7000000
   responses:
     201:
       description: Лотерея успешно создана
@@ -72,6 +76,9 @@ v1.createLottery:
                 type: string
                 format: date-time
                 example: "2025-12-31T23:59:59Z"
+              amount:
+                type: integer
+                example: 7000000
               organizator:
                 type: object
                 properties:
