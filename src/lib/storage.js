@@ -22,7 +22,6 @@ class S3Storage {
       }
     };
 
-    // Для S3-совместимых хранилищ (Timeweb, MinIO и т.д.)
     if (config.endpoint) {
       clientConfig.endpoint = config.endpoint;
       clientConfig.forcePathStyle = config.s3ForcePathStyle !== undefined 
@@ -52,7 +51,7 @@ class S3Storage {
 
       const response = await this.client.send(command);
       
-      // Формирование URL в зависимости от типа хранилища
+
       let fileUrl;
       if (this.endpoint) {
         fileUrl = `${this.endpoint}/${this.bucketName}/${key}`;
@@ -84,8 +83,7 @@ class S3Storage {
       });
 
       const response = await this.client.send(command);
-      
-      // Преобразуем Stream в Buffer
+
       const chunks = [];
       for await (const chunk of response.Body) {
         chunks.push(chunk);

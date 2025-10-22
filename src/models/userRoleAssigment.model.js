@@ -48,13 +48,12 @@ export default (sequelize, DataTypes) => {
   });
 
   userRoleAssignment.associate = (models) => {
-    // Связь с User
     models.userRoleAssignment.belongsTo(models.user, {
       foreignKey: 'userId',
       as: 'user',
     });
 
-    // Связь с Role
+
     models.userRoleAssignment.belongsTo(models.role, {
       foreignKey: 'roleId',
       as: 'role',

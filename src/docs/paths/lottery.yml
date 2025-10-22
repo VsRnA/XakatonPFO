@@ -260,6 +260,98 @@ v1.getLottery:
     500:
       $ref: '../components/responses/errors.yml#/InternalError'
 
+v1.registerInLottery:
+  summary: Регистрация в лотерее
+  description: Регистрирует пользователя в лотерее с загрузкой изображения
+  tags:
+    - Lottery
+  security:
+    - JWTToken: []
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          required:
+            - file
+            - lotteryId
+            - barrelHash
+          properties:
+            file:
+              type: string
+              format: binary
+              description: Изображение пользователя (JPEG, PNG, GIF, WebP)
+            lotteryId:
+              type: integer
+              description: ID лотереи
+              example: 1
+            barrelHash:
+              type: string
+              description: SHA-256 хеш выбранных бочек
+              example: "5d41402abc4b2a76b9719d911017c592ae1f8c7a1bcd1e3b0e8f7d6a9c5b4a3e"
+              pattern: '^[a-f0-9]{64}$'
+  responses:
+    201:
+      description: Пользователь успешно зарегистрирован в лотерее
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Вы успешно зарегистрированы в лотерее"
+              assignment:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                    example: 1
+                  lotteryId:
+                    type: integer
+                    example: 1
+                  entropy:
+                    type: string
+                    example: "a1b2c3d4e5f6..."
+                  status:
+                    type: string
+                    enum: [inProgress, won, lost]
+                    example: "inProgress"
+                  registeredAt:
+                    type: string
+                    format: date-time
+                    example: "2025-10-22T12:00:00.000Z"
+              lottery:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: "Новогодний розыгрыш 2025"
+                  startAt:
+                    type: string
+                    format: date-time
+                    example: "2025-12-01T00:00:00Z"
+                  endAt:
+                    type: string
+                    format: date-time
+                    example: "2025-12-31T23:59:59Z"
+    400:
+      $ref: '../components/responses/errors.yml#/BadRequest'
+    401:
+      $ref: '../components/responses/errors.yml#/Unauthorized'
+    403:
+      $ref: '../components/responses/errors.yml#/Forbidden'
+    404:
+      $ref: '../components/responses/errors.yml#/NotFound'
+    409:
+      $ref: '../components/responses/errors.yml#/Conflict'
+    500:
+      $ref: '../components/responses/errors.yml#/InternalError'
+
 components:
   schemas:
     LotteryWithImage:

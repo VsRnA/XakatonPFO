@@ -4,13 +4,11 @@ import { getFileUrl } from '#services/fileUpload.js';
 export default async (request) => {
   const { page = 1, limit = 10, search, status, organizatorId } = request.query;
 
-  // Валидация параметров пагинации
   const parsedPage = parseInt(page);
   const parsedLimit = parseInt(limit);
 
   const offset = (parsedPage - 1) * parsedLimit;
 
-  // Получение лотерей из БД
   const { lotteries, total } = await rLottery.list({
     limit: parsedLimit,
     offset,

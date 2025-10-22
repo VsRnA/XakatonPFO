@@ -4,7 +4,6 @@ import { Op } from '#db';
 export default async ({ limit, offset, search, status, organizatorId }, options = {}) => {
   const where = {};
   
-  // Фильтр по поиску (название или описание)
   if (search) {
     where[Op.or] = [
       { name: { [Op.like]: `%${search}%` } },
@@ -12,12 +11,10 @@ export default async ({ limit, offset, search, status, organizatorId }, options 
     ];
   }
 
-  // Фильтр по статусу
   if (status) {
     where.status = status;
   }
 
-  // Фильтр по организатору
   if (organizatorId) {
     where.organizatorId = organizatorId;
   }

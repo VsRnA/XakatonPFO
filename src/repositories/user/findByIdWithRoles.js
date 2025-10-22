@@ -16,7 +16,6 @@ export default async (id, options = {}) => {
     return null;
   }
 
-  // Преобразование в plain object
   const plainUser = user.get({ plain: true });
   
   return plainUser;

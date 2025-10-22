@@ -2,6 +2,7 @@ import cCreateLottery from '#controllers/lottery/create.js';
 import cGetLottery from '#controllers/lottery/get.js';
 import cListLotteries from '#controllers/lottery/list.js';
 import cGetLotteryImage from '#controllers/lottery/getLotteryImage.js';
+import cRegisterInLottery from '#controllers/userLottery/create.js'
 
 export default [
   {
@@ -28,5 +29,12 @@ export default [
     verb: 'get',
     handler: cGetLotteryImage,
     authedOnly: true,
+  },
+  {
+    path: '/lottery/v1/register',
+    verb: 'post',
+    handler: cRegisterInLottery,
+    authedOnly: true,
+    upload: true,
   },
 ];

@@ -85,10 +85,8 @@ export default (passport) => {
           });
         }
 
-        // Устанавливаем пользователя в req.user (стандарт Passport)
         req.user = user;
-        
-        // Также устанавливаем в req.context для вашей архитектуры
+
         if (!req.context) {
           req.context = {};
         }
