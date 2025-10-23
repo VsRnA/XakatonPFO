@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 
 export const DRAND_GENESIS = 1692803367; // Unix timestamp genesis
-export const DRAND_ROUND_TIME = 3; // 3 секунды между раундами
+export const DRAND_ROUND_TIME = 30; // 30 секунды между раундами
 
 /**
  * Вычислить номер раунда drand на основе времени окончания лотереи
