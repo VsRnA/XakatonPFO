@@ -5,7 +5,7 @@ dotenv.config();
 
 const envVarsSchema = Joi.object({
   NODE_ENV: Joi.string()
-    .valid('development', 'production') // .allow() устарел, используйте .valid()
+    .valid('development', 'production')
     .default('development'),
   PORT: Joi.number().default(4060),
   JWT_SECRET: Joi.string().required()
@@ -13,7 +13,7 @@ const envVarsSchema = Joi.object({
   MYSQL_HOST: Joi.string().required()
     .description('MySQL host url'),
   MYSQL_PORT: Joi.number().default(3306), 
-  MYSQL_USER: Joi.string().required(), // Добавьте валидацию для используемых переменных
+  MYSQL_USER: Joi.string().required(),
   MYSQL_PASSWORD: Joi.string().required(),
   MYSQL_DB: Joi.string().required(),
   MODELS_DIR: Joi.string().default('src/models'),

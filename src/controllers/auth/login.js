@@ -31,7 +31,6 @@ export default async (request) => {
 
   const user = await rUser.findByEmail(email);
 
-  // Одинаковое сообщение для защиты от enumeration
   if (!user) {
     throw new UnauthorizedError('Неверный email или пароль', {
       code: ERROR_CODES.INVALID_CREDENTIALS,

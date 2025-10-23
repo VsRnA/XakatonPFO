@@ -1,4 +1,3 @@
-// getUserResult.js
 import { rUserLotteryAssigned } from '#repos';
 import { parseInteger } from '#helpers/validation.js';
 import {
@@ -23,7 +22,6 @@ export default async (request) => {
     { order: [['placement', 'ASC']] }
   );
 
-  // Собираем энтропии всех участников
   const entropies = allParticipants.map(p => p.entropy);
 
   return formatUserResultResponse(

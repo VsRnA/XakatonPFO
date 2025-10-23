@@ -46,10 +46,8 @@ export default async (request) => {
     return await executeInTransaction(async (transaction) => {
       const options = { transaction };
 
-      // Загружаем файл
       uploadedFile = await uploadFile(file, 'lotteries');
 
-      // Создаём лотерею
       const lottery = await rLottery.create({
         name,
         description: description || null,
@@ -65,13 +63,12 @@ export default async (request) => {
         drandRound,
       }, options);
 
-      // Получаем созданную лотерею с организатором
       const createdLottery = await rLottery.findById(lottery.id, options);
 
       return formatLotteryResponse(createdLottery, { includeImage: false });
     });
   } catch (error) {
-    // Откатываем загрузку файла при ошибке
+    
     if (uploadedFile) {
       await deleteFile(uploadedFile.key).catch((deleteError) => {
         console.error('Failed to delete file after lottery creation error:', {

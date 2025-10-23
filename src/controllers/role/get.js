@@ -1,4 +1,3 @@
-import { rRole } from '#repos';
 import { findRoleOrFail, formatRoleResponse } from '#helpers/role.js';
 import { parseInteger } from '#helpers/validation.js';
 

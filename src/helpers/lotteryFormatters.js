@@ -133,7 +133,6 @@ export function formatUserResultResponse(lottery, userAssignment, allParticipant
       status: p.status,
       isCurrentUser: p.userId === user.id,
     })),
-    // Данные для аудита и верификации
     audit: calculationData ? {
       verification_url: '/api/lottery/v1/calculate-verification',
       can_verify: true,

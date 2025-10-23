@@ -1,4 +1,3 @@
-// registerInLottery.js
 import { rUserLotteryAssigned, rEntropyAttachment } from '#repos';
 import { uploadFile, deleteFile } from '#services/fileUpload.js';
 import { generateEntropy } from '#services/entropyServices.js';

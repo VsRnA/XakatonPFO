@@ -1,4 +1,3 @@
-// #helpers/lotteryHelpers.js
 import { getFileUrl } from '#services/fileUpload.js';
 
 /**

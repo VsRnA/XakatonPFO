@@ -7,7 +7,6 @@ import { loadOpenapiRoutes, validateRequest } from '#lib/openapi.js';
 import Auth from '../../config/passport.js';
 import S3Storage from '#lib/storage.js';
 
-// Маппинг кодов ошибок на HTTP статусы
 const ERROR_CODE_TO_HTTP_STATUS = {
   ERR_NOT_FOUND: 404,
   ERR_VALIDATION: 400,

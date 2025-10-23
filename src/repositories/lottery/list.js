@@ -82,7 +82,7 @@ export default async ({
   const { count, rows } = await db.lottery.findAndCountAll(queryOptions);
 
   return { 
-    lotteries: rows.map(row => row.toJSON()), // или row.get({ plain: true })
+    lotteries: rows.map(row => row.toJSON()),
     total: count 
   };
 };

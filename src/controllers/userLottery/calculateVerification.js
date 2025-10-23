@@ -1,5 +1,3 @@
-// handlers/lottery/calculateVerification.js
-
 import { generateWinningBarrels, generateRandomnessBitsFile } from '#services/lotteryCalculation.js';
 import { calculateFinalSeed } from '#helpers/lotteryCalculation.js';
 import { createSeedHash } from '#services/drandServices.js';
@@ -15,7 +13,7 @@ export default async (request) => {
     playerEntropies, 
     barrelLimit,
     barrelCount,
-    generateBitsFile = true, // Опциональный параметр
+    generateBitsFile = true,
   } = request.payload;
 
   const seedHash = createSeedHash(seed);
@@ -26,7 +24,6 @@ export default async (request) => {
     parseInt(barrelCount), 
   );
 
-  // Генерация и загрузка файла в S3 (если запрошено)
   let bitsFileUrl = null;
   if (generateBitsFile) {
     const bitsContent = generateRandomnessBitsFile(
@@ -117,7 +114,6 @@ export default async (request) => {
         }
       }
     } catch (error) {
-      // Не критично для калькулятора
     }
   }
 
@@ -136,7 +132,7 @@ export default async (request) => {
       warnings: anomalies.filter(a => a.severity === 'warning').length,
     },
     anomalies,
-    randomnessTestFileUrl: bitsFileUrl, // ← Ссылка на файл в S3
+    randomnessTestFileUrl: bitsFileUrl,
     steps: [
       {
         step: 1,

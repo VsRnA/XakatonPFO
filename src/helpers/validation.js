@@ -1,4 +1,3 @@
-// #helpers/validation.js
 import { ForbiddenError, ValidationError } from '#errors';
 
 /**

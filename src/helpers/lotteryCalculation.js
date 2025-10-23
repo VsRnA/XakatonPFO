@@ -1,4 +1,3 @@
-// #helpers/lotteryCalculation.js
 import crypto from 'crypto';
 import { ValidationError } from '#errors';
 
