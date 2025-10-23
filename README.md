@@ -276,7 +276,7 @@ docker-compose restart
 | `NODE_ENV` | Окружение | `development` |
 | `PORT` | Порт сервера | `3001` |
 | `DB_HOST` | Хост PostgreSQL | `postgres` |
-| `DB_PORT` | Порт PostgreSQL | `5432` |
+| `DB_PORT` | Порт PostgreSQL | `3306` |
 | `DB_NAME` | Имя БД | `lottery_db` |
 | `DB_USER` | Пользователь БД | `postgres` |
 | `DB_PASSWORD` | Пароль БД | - |

@@ -35,7 +35,7 @@ export async function startScheduledLotteries() {
       }
     }
 
-    console.log(`✓ Запущено лотерей: ${startedCount} из ${lotteriesToStart.length}`);
+    console.log(`Запущено лотерей: ${startedCount} из ${lotteriesToStart.length}`);
     return { started: startedCount, total: lotteriesToStart.length };
   } catch (error) {
     console.error('Ошибка в startScheduledLotteries:', error);
@@ -58,7 +58,7 @@ export async function finishScheduledLotteries() {
     });
     
     if (lotteriesToFinish.length === 0) {
-      console.log('✓ Нет лотерей для завершения');
+      console.log('Нет лотерей для завершения');
       return { finished: 0 };
     }
 
@@ -88,7 +88,7 @@ export async function finishScheduledLotteries() {
  * Проверка и обновление всех статусов лотерей
  */
 export async function updateAllLotteryStatuses() {
-  console.log('🔄 Начало проверки статусов лотерей:', new Date().toISOString());
+  console.log('Начало проверки статусов лотерей:', new Date().toISOString());
   
   try {
     const startResult = await startScheduledLotteries();
