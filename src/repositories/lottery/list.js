@@ -58,7 +58,6 @@ export default async ({
     }
   }
 
-  console.log(where);
 
   const queryOptions = {
     where,

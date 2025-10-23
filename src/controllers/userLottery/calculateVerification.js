@@ -44,7 +44,6 @@ export default async (request) => {
           uploadedAt: new Date().toISOString()
         }
       });
-    console.log('bitsFileUrl', bitsFileUrl);
   }
 
   let officialData = null;

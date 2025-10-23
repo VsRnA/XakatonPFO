@@ -18,8 +18,6 @@ export function generateWinningBarrels(seed, count = 6, maxNumber = 90) {
     
     barrels.add(barrel);
 
-    console.log(barrels);
-
     currentSeed = hash;
   }
 

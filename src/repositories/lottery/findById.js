@@ -1,7 +1,6 @@
 import db from '#db';
 
 export default async (id, options = {}) => {
-  console.log(id);
   const lottery = await db.lottery.findByPk(id, {
     include: [
       {
