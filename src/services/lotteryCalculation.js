@@ -18,6 +18,8 @@ export function generateWinningBarrels(seed, count = 6, maxNumber = 90) {
     
     barrels.add(barrel);
 
+    console.log(barrels);
+
     currentSeed = hash;
   }
 
@@ -58,4 +60,47 @@ export function validateDrandRandomness(randomness) {
   return typeof randomness === 'string' && 
          randomness.length >= 64 && 
          hexPattern.test(randomness);
+}
+
+/**
+ * Генерирует файл с миллионом бит для тестов случайности
+ */
+export function generateRandomnessBitsFile(lotteryId, finalSeed, bitsCount = 1000000) {
+  const header = [
+    `Lottery ID: ${lotteryId}`,
+    `Final Seed: ${finalSeed}`,
+    `Generated: ${new Date().toISOString()}`,
+    `Bits Count: ${bitsCount}`,
+    ``,
+    `Randomness bits for statistical tests (NIST, Diehard, etc.):`,
+    ``,
+  ].join('\n');
+
+  const bits = [];
+  let counter = 0;
+  
+  while (bits.length < bitsCount) {
+    // Генерируем хеш из finalSeed + counter
+    const hash = crypto
+      .createHash('sha256')
+      .update(finalSeed + counter.toString())
+      .digest();
+    
+    // Извлекаем биты из каждого байта
+    for (let i = 0; i < hash.length && bits.length < bitsCount; i++) {
+      const byte = hash[i];
+      
+      // Берём каждый бит байта (8 бит на байт)
+      for (let bit = 7; bit >= 0 && bits.length < bitsCount; bit--) {
+        bits.push((byte >> bit) & 1);
+      }
+    }
+    
+    counter++;
+  }
+  
+  // Без пробелов, просто строка из 0 и 1
+  const bitsString = bits.join('');
+  
+  return header + bitsString;
 }

@@ -18,7 +18,7 @@ import { formatCalculationResponse } from '#helpers/lotteryFormatters.js';
 export default async (request) => {
   const { user } = request.context;
   const lotteryId = parseInteger(request.payload.lotteryId, 'lotteryId', { min: 1 });
-  const { drandRandomness } = request.payload;
+  const { drandRandomness, drandRound } = request.payload;
 
   return await executeInTransaction(async (transaction) => {
     const options = { transaction };
@@ -36,7 +36,7 @@ export default async (request) => {
     const entropies = participants.map(p => p.entropy);
     const finalSeed = calculateFinalSeed(lottery.seed, drandRandomness, entropies);
 
-    const winningBarrels = generateWinningBarrels(finalSeed, lottery.metadata.barrelLimit);
+    const winningBarrels = generateWinningBarrels(finalSeed, lottery.metadata.barrelLimit, lottery.metadata.barrelCount);
 
     const results = processParticipantResults(participants, winningBarrels);
 
@@ -69,6 +69,7 @@ export default async (request) => {
           ...lottery.metadata,
           finalSeed,
           drandRandomness,
+          drandRound,
           winningBarrels,
           calculatedAt: new Date().toISOString(),
           totalParticipants: participants.length,
@@ -82,10 +83,15 @@ export default async (request) => {
       lottery,
       {
         secretSeed: lottery.seed,
+        seedHash: lottery.seedHash,
         drandRandomness,
+        drandRound,
         finalSeed,
         winningBarrels,
         totalParticipants: participants.length,
+        barrelLimit: lottery.metadata.barrelLimit,
+        barrelCount: lottery.metadata.barrelCount || 15,
+        playerEntropies: entropies,
       },
       winners,
       results

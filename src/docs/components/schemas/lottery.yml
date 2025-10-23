@@ -271,21 +271,51 @@ LotteryCalculationResponse:
       properties:
         secretSeed:
           type: string
-          example: "secret123..."
+          example: "a3f5e8c9d4e1f0a6b5c8d7e3f2a1b9c4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+          description: "Раскрытый секретный seed сервера"
+        seedHash:
+          type: string
+          example: "b7f3a2e9c8d4f1a0e6b5c9d7e3f2a1b0c4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9"
+          description: "SHA-256 хеш секретного seed (commitment)"
         drandRandomness:
           type: string
-          example: "8d969eef..."
+          example: "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+          description: "Случайное число от drand"
+        drandRound:
+          type: integer
+          example: 5000000
+          description: "Номер раунда drand"
         finalSeed:
           type: string
-          example: "a1b2c3d4..."
+          example: "e9f2a3b8c7d6e5f4a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2"
+          description: "Финальный seed"
         winningBarrels:
           type: array
           items:
             type: integer
-          example: [5, 12, 23, 45, 67, 89]
+          example: [3, 12, 23, 34, 45, 56, 67, 71, 78, 82, 85, 87, 88, 89, 90]
+          description: "Выигрышные бочки"
         totalParticipants:
           type: integer
           example: 150
+          description: "Общее количество участников"
+        barrelLimit:
+          type: integer
+          example: 90
+          description: "Максимальный номер бочки в лотерее"
+        barrelCount:
+          type: integer
+          example: 15
+          description: "Количество выигрышных бочек"
+        playerEntropies:
+          type: array
+          items:
+            type: string
+          example: 
+            - "d48d7a91c17feac70776cc96112ca2ea178a0e0696dc5667190681d50121d112"
+            - "c4d8e2f1a9b3e5f7a0b2c4d6e8f1a3b5c7d9e0f2a4b6c8d0e2f4a6b8c0d2e4f6"
+            - "9a7b3f4e5c6d8e0f2a1b3c5d7e9f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4"
+          description: "Список энтропий всех участников (отсортированы как в расчёте)"
     winners:
       type: array
       items:
@@ -324,6 +354,42 @@ LotteryCalculationResponse:
             type: string
             enum: [won, lost]
             example: "won"
+    audit:
+      type: object
+      description: "Данные для аудита и верификации"
+      properties:
+        verification_url:
+          type: string
+          example: "/api/lottery/v1/calculate-verification"
+          description: "URL калькулятора верификации"
+        can_verify:
+          type: boolean
+          example: true
+          description: "Можно ли проверить результаты (есть ли все данные)"
+        verification_data:
+          type: object
+          description: "Готовые данные для вставки в калькулятор верификации"
+          properties:
+            lotteryId:
+              type: integer
+              example: 1
+            seed:
+              type: string
+              example: "a3f5e8c9d4e1f0a6b5c8d7e3f2a1b9c4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+            drandRandomness:
+              type: string
+              example: "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+            playerEntropies:
+              type: array
+              items:
+                type: string
+              example: ["hash1", "hash2", "hash3"]
+            barrelLimit:
+              type: integer
+              example: 90
+            barrelCount:
+              type: integer
+              example: 15
 
 UserLotteryResults:
   type: object

@@ -11,10 +11,15 @@ export function formatCalculationResponse(lottery, calculation, winners, results
     },
     calculation: {
       secretSeed: calculation.secretSeed,
+      seedHash: calculation.seedHash,
       drandRandomness: calculation.drandRandomness,
+      drandRound: calculation.drandRound,
       finalSeed: calculation.finalSeed,
       winningBarrels: calculation.winningBarrels,
       totalParticipants: calculation.totalParticipants,
+      barrelLimit: calculation.barrelLimit,
+      barrelCount: calculation.barrelCount,
+      playerEntropies: calculation.playerEntropies,
     },
     winners: winners.map(w => ({
       userId: w.userId,
@@ -22,12 +27,24 @@ export function formatCalculationResponse(lottery, calculation, winners, results
       playerBarrels: w.playerBarrels,
       matchCount: w.matchCount,
     })),
-    results: results.map((r, index) => ({
-      placement: r.matchCount > 0 ? index + 1 : null,
+    results: results.map(r => ({
+      placement: r.placement,
       userId: r.userId,
       matchCount: r.matchCount,
-      status: winners.some(w => w.entropy === r.entropy) ? 'won' : 'lost',
+      status: r.isWinner ? 'won' : 'lost',
     })),
+    audit: {
+      verification_url: '/api/lottery/v1/calculate-verification',
+      can_verify: true,
+      verification_data: {
+        lotteryId: lottery.id,
+        seed: calculation.secretSeed,
+        drandRandomness: calculation.drandRandomness,
+        playerEntropies: calculation.playerEntropies,
+        barrelLimit: calculation.barrelLimit,
+        barrelCount: calculation.barrelCount,
+      },
+    },
   };
 }
 
@@ -56,7 +73,7 @@ export function formatRegistrationResponse(assignment, lottery) {
 /**
  * Форматирует результаты пользователя в лотерее
  */
-export function formatUserResultResponse(lottery, userAssignment, allParticipants, user) {
+export function formatUserResultResponse(lottery, userAssignment, allParticipants, user, calculationData) {
   const userBarrels = JSON.parse(userAssignment.metadata?.barrelsNumber || '[]');
   const userMatchCount = userAssignment.metadata?.matchCount || 0;
   const winningBarrels = lottery.metadata?.winningBarrels || [];
@@ -105,6 +122,7 @@ export function formatUserResultResponse(lottery, userAssignment, allParticipant
       entropy: userAssignment.entropy,
       secretSeed: lottery.seed,
       drandRandomness: lottery.metadata?.drandRandomness,
+      drandRound: lottery.metadata?.drandRound,
       finalSeed: lottery.metadata?.finalSeed,
       seedHash: lottery.seedHash,
     },
@@ -115,5 +133,30 @@ export function formatUserResultResponse(lottery, userAssignment, allParticipant
       status: p.status,
       isCurrentUser: p.userId === user.id,
     })),
+    // Данные для аудита и верификации
+    audit: calculationData ? {
+      verification_url: '/api/lottery/v1/calculate-verification',
+      can_verify: true,
+      calculation: {
+        secretSeed: calculationData.secretSeed,
+        seedHash: calculationData.seedHash,
+        drandRandomness: calculationData.drandRandomness,
+        drandRound: calculationData.drandRound,
+        finalSeed: calculationData.finalSeed,
+        winningBarrels: calculationData.winningBarrels,
+        totalParticipants: calculationData.totalParticipants,
+        barrelLimit: calculationData.barrelLimit,
+        barrelCount: calculationData.barrelCount,
+        playerEntropies: calculationData.playerEntropies,
+      },
+      verification_data: {
+        lotteryId: lottery.id,
+        seed: calculationData.secretSeed,
+        drandRandomness: calculationData.drandRandomness,
+        playerEntropies: calculationData.playerEntropies,
+        barrelLimit: calculationData.barrelLimit,
+        barrelCount: calculationData.barrelCount,
+      },
+    } : null,
   };
 }

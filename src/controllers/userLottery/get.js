@@ -23,5 +23,25 @@ export default async (request) => {
     { order: [['placement', 'ASC']] }
   );
 
-  return formatUserResultResponse(lottery, userAssignment, allParticipants, user);
+  // Собираем энтропии всех участников
+  const entropies = allParticipants.map(p => p.entropy);
+
+  return formatUserResultResponse(
+    lottery, 
+    userAssignment, 
+    allParticipants, 
+    user,
+    {
+      secretSeed: lottery.seed,
+      seedHash: lottery.seedHash,
+      drandRandomness: lottery.metadata.drandRandomness,
+      drandRound: lottery.metadata.drandRound,
+      finalSeed: lottery.metadata.finalSeed,
+      winningBarrels: lottery.metadata.winningBarrels,
+      totalParticipants: lottery.metadata.totalParticipants,
+      barrelLimit: lottery.metadata.barrelLimit,
+      barrelCount: lottery.metadata.barrelCount || 15,
+      playerEntropies: entropies,
+    }
+  );
 };
