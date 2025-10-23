@@ -21,6 +21,7 @@ async function initDb () {
     db[model.name] = model
   })
 
+  // Убрать после создания таблиц
   await sequelize.sync({ alter: true }); 
   
   return db;
